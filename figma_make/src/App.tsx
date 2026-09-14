@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { tracks } from "../../src/data/tracks"
+import MixtapePlayer from "../../src/components/archive/MixtapePlayer"
 
 /* ------------------------------------------------------------------ *\
    Andre's Archive — an interactive spatial interest board.
@@ -290,6 +291,7 @@ export default function App() {
   const [panel, setPanel] = useState<Panel>(null)
   const [pokemonFlipped, setPokemonFlipped] = useState(false)
   const [cinemaOpen, setCinemaOpen] = useState(false)
+  const [playerOpen, setPlayerOpen] = useState(false)
   const [photoIndex, setPhotoIndex] = useState(0)
   const [albumSelected, setAlbumSelected] = useState(false)
   const [audioPlaying, setAudioPlaying] = useState(false)
@@ -308,6 +310,10 @@ export default function App() {
   const [grabbing, setGrabbing] = useState(false)
   const curiosityFound = ["figma", "pokemon"].every((id) => discoveries.includes(id))
   const discover = useCallback((id: string) => setDiscoveries((current) => current.includes(id) ? current : [...current, id]), [])
+  const onPlaybackChange = useCallback((playing: boolean, label: string) => {
+    setAudioPlaying(playing)
+    setNowPlaying(label)
+  }, [])
   const toggleAlbumPlayback = useCallback(async () => {
     setAlbumSelected(true)
     const audio = audioRef.current
