@@ -1,5 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="12" fill="#1f6b50"/>
-  <path d="M13 15h38v34H13z" fill="#101216"/>
-  <text x="32" y="39" fill="#f4efe4" font-family="Georgia,serif" font-size="22" font-weight="700" text-anchor="middle">AS</text>
+  <rect x="10" y="10" width="44" height="44" rx="6" fill="#101216"/>
+  <g transform="translate(15 20) scale(.053)" fill="#fff">
+    <path d="M64 360L252 40L342 187C346 194.333 353 198 363 198H463C511 198 550 231 550 277C550 325 514 360 465 360H396C376 360 360.667 352.333 350 337L323 300H461C476 300 486 291 486 279C486 267 476 258 461 258H368C331 258 304 243 285 212L252 159L132 360H64Z"/>
+    <path d="M360 91H449C484 91 508 111 526 143L532 153H343L326 124C317 109 328 91 344 91H360Z"/>
+    <path d="M170 359.77L250 220L330 359.77H170Z"/>
+  </g>
 </svg>
