@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+:root {
+  /* Cutting-mat blues */
+  --mat: #1f5fbf;
+  --mat-deep: #164a99;
+  --grid: rgba(255, 255, 255, 0.16);
+  --grid-fine: rgba(255, 255, 255, 0.07);
+
+  --paper: #f4efe4;
+  --ink: #16181d;
+  --panel: #101216;
+  --panel-2: #16191f;
+
+  --red: #e23b34;
+  --blue: #2e6be6;
+  --yellow: #f2c318;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--mat-deep);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* hide scrollbars on the board */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}

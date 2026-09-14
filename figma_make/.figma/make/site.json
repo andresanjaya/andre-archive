@@ -1,0 +1,10 @@
+{
+  "description": "Effortlessly read and execute requests from Markdown files, streamlining documentation processes for developers and teams seeking efficiency.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
