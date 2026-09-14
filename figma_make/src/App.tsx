@@ -38,7 +38,7 @@ const ARTIFACT_POSITIONS = {
   hidden: { x: -845, y: 430, rotate: -4, z: 30, width: 190 },
 } as const
 
-type Panel = "spiderman" | "photo" | null
+type Panel = "marvel" | "spiderman" | "photo" | null
 
 /* --- Artifact wrapper: absolute position from center, rotation,
        hover lift + label, keyboard focus, optional click ---------- */
@@ -288,6 +288,7 @@ function MobileArchive({ cinemaOpen, onCinema, onPhoto, onMixtape }: { cinemaOpe
 export default function App() {
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [panel, setPanel] = useState<Panel>(null)
+  const [pokemonFlipped, setPokemonFlipped] = useState(false)
   const [cinemaOpen, setCinemaOpen] = useState(false)
   const [photoIndex, setPhotoIndex] = useState(0)
   const [albumSelected, setAlbumSelected] = useState(false)
