@@ -348,6 +348,8 @@ export default function App() {
     oy: 0,
   })
   const [grabbing, setGrabbing] = useState(false)
+  const panFrame = useRef<number | null>(null)
+  const pendingPan = useRef({ x: 0, y: 0 })
   const curiosityFound = ["figma", "pokemon"].every((id) => discoveries.includes(id))
   const disturb = useCallback((id: string) => setDisturbed((current) => current.includes(id) ? current : [...current, id]), [])
   const discover = useCallback((id: string) => {
@@ -413,6 +415,12 @@ export default function App() {
   const layoutFor = <T extends { x: number; y: number; rotate: number },>(id: string, fallback: T) => ({ ...fallback, ...assetLayout[id] })
 
   useEffect(() => {
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      setPan({ x: window.innerWidth / 2 - 640, y: window.innerHeight / 2 - 450 })
+    }
+  }, [])
+
+  useEffect(() => {
     if (curiosityFound) disturb("secret-curiosity")
   }, [curiosityFound, disturb])
 
@@ -432,7 +440,13 @@ export default function App() {
     const dx = e.clientX - drag.current.sx
     const dy = e.clientY - drag.current.sy
     if (Math.abs(dx) > 4 || Math.abs(dy) > 4) drag.current.moved = true
-    setPan({ x: clamp(drag.current.ox + dx, 640), y: clamp(drag.current.oy + dy, 460) })
+    pendingPan.current = { x: clamp(drag.current.ox + dx, 640), y: clamp(drag.current.oy + dy, 460) }
+    if (panFrame.current === null) {
+      panFrame.current = window.requestAnimationFrame(() => {
+        setPan(pendingPan.current)
+        panFrame.current = null
+      })
+    }
   }, [])
 
   const onPointerUp = useCallback((e: React.PointerEvent) => {

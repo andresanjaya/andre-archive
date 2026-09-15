@@ -357,9 +357,10 @@ input:focus-visible {
   .mobile-reference-row img:nth-child(3) { transform: rotate(-1deg); }
   .archive-spatial > div[class*="right-5"] { display: none; }
   .curiosity-toast { right: 16px; left: 16px; bottom: 98px; text-align: center; }
-  nav.fixed { width: calc(100vw - 24px); bottom: 12px; overflow-x: auto; }
-  nav.fixed > div { justify-content: flex-start; width: max-content; min-width: 100%; }
-  nav.fixed button { min-width: 42px; min-height: 42px; justify-content: center; padding-inline: 10px; }
+  nav.fixed { width: calc(100vw - 16px); bottom: 12px; overflow: visible; }
+  nav.fixed > div { justify-content: space-between; width: 100%; min-width: 0; gap: 0; }
+  nav.fixed button { min-width: 28px; min-height: 42px; justify-content: center; padding-inline: 4px; }
+  nav.fixed button:first-child { min-width: 70px; padding-inline: 10px; }
   .photo-viewer, .mixtape-overlay { padding: 14px; }
   .photo-stage { height: 52vh; }
   .now-playing { bottom: 78px; }
