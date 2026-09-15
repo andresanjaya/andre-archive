@@ -15,4 +15,11 @@ export const tracks: MixtapeTrack[] = [
     src: '/archive/audio/song-1.mp3',
     cover: '/archive/assets/song-1.jpg',
   },
+  {
+    id: 'green-day-good-riddance',
+    title: 'Good Riddance',
+    artist: 'Green Day',
+    src: '/archive/audio/song-2.mp3',
+    cover: '/archive/assets/song-2.jpg',
+  },
 ];

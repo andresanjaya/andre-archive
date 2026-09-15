@@ -11,23 +11,20 @@ import { DustArtifact, PeelNote, ScratchCard } from "../../src/components/archiv
 const PHOTOS = [
   { src: "/archive/assets/pict-1.jpg", title: "Graduation", year: "", caption: "graduation" },
   { src: "/archive/assets/pict-2.png", title: "Kindergarten", year: "", caption: "kindergarten" },
-  { src: "/archive/assets/pict-4.JPEG", title: "Archive photograph", year: "", caption: "personal reference" },
+  { src: "/archive/assets/pict-4.JPEG", title: "Mirror selfie", year: "", caption: "mirror selfie" },
   { src: "/archive/assets/pict-5.JPG", title: "Archive photograph", year: "", caption: "personal reference" },
 ]
 
 const BOARD_ASSETS = [
   { id: "book", src: "/archive/assets/book-1.jpg", alt: "The Design of Everyday Things book cover", caption: "The Design of Everyday Things", x: -875, y: -230, rotate: -7, width: 90 },
   { id: "book-two", src: "/archive/assets/book-2.jpg", alt: "Almost Adulting book cover", caption: "Almost Adulting", x: 875, y: -400, rotate: 8, width: 88 },
-  { id: "book-three", src: "/archive/assets/book-3.jpg", alt: "Atomic Habits book cover", caption: "Atomic Habits", x: -1035, y: 60, rotate: -4, width: 86 },
+  { id: "book-three", src: "/archive/assets/book-3.jpg", alt: "Atomic Habits book cover", caption: "Atomic Habits", x: -1100, y: 60, rotate: -4, width: 86 },
   { id: "letterboxd", src: "/archive/assets/letterboxd.png", alt: "Letterboxd logo", caption: "Letterboxd", x: 720, y: -475, rotate: 5, width: 76 },
   { id: "movie-one", src: "/archive/assets/movie-1.jpg", alt: "Oppenheimer poster", caption: "Oppenheimer", x: 1020, y: -105, rotate: 6, width: 112 },
-  { id: "movie-two", src: "/archive/assets/movie-2.jpg", alt: "Good Will Hunting poster", caption: "Good Will Hunting", x: -925, y: 145, rotate: -5, width: 108 },
+  { id: "movie-two", src: "/archive/assets/movie-2.jpg", alt: "Good Will Hunting poster", caption: "Good Will Hunting", x: -820, y: 145, rotate: -5, width: 108 },
   { id: "movie-three", src: "/archive/assets/movie-3.jpg", alt: "Eternal Sunshine of the Spotless Mind poster", caption: "Eternal Sunshine", x: 875, y: 400, rotate: 4, width: 114 },
   { id: "movie-four", src: "/archive/assets/movie-4.jpg", alt: "Film reference", caption: "Film reference", x: 1060, y: -375, rotate: -4, width: 110 },
   { id: "archive-logo", src: "/archive/assets/logo.svg", alt: "Andre Archive logo", caption: "Archive logo", x: -1060, y: -135, rotate: 5, width: 104 },
-  { id: "pokemon-mark", src: "/archive/assets/pokemon.svg", alt: "Pokémon reference", caption: "Pokémon", x: 1015, y: 120, rotate: 6, width: 94 },
-  { id: "pokemon-card", src: "/archive/assets/pokemon-card.png", alt: "Andre Sanjaya Pokémon supporter card", caption: "Pokémon card", x: -685, y: -460, rotate: -4, width: 120 },
-  { id: "song-two", src: "/archive/assets/song-2.jpg", alt: "Archive music reference", caption: "Archive music", x: 410, y: 505, rotate: -5, width: 112 },
 ] as const
 
 const ARTIFACT_POSITIONS = {
@@ -35,13 +32,13 @@ const ARTIFACT_POSITIONS = {
   marvel: { x: 555, y: -315, rotate: 5, z: 30, width: 104 },
   spiderman: { x: 665, y: 5, rotate: -5, z: 40, width: 110 },
   north: { x: -620, y: -10, rotate: -6, z: 30 },
-  onFoot: { x: -515, y: 300, rotate: 5, z: 30 },
+  onFoot: { x: -650, y: 270, rotate: 5, z: 30 },
   stillness: { x: 520, y: 160, rotate: 4, z: 30 },
   cassette: { x: -135, y: 445, rotate: -3, z: 40, width: 168 },
   cinema: { x: 355, y: 445, rotate: 6, z: 40, width: 170 },
   note: { x: -880, y: -80, rotate: -3, z: 20, width: 128 },
   bali: { x: 95, y: -445, rotate: 4, z: 30, width: 120 },
-  fifth: { x: -405, y: 380, rotate: -5, z: 30 },
+  fifth: { x: -390, y: 465, rotate: -5, z: 30 },
   rams: { x: -790, y: 420, rotate: 5, z: 20, width: 84 },
   typeBook: { x: 435, y: -410, rotate: -8, z: 20, width: 80 },
   terminal: { x: 850, y: 40, rotate: 5, z: 40, width: 132 },
@@ -57,6 +54,7 @@ const RANDOMIZABLE_ASSETS = [
   { id: "pict-four", ...ARTIFACT_POSITIONS.stillness },
   { id: "pict-five", ...ARTIFACT_POSITIONS.fifth },
   { id: "mixtape", ...ARTIFACT_POSITIONS.cassette },
+  { id: "song-two", x: 760, y: 520, rotate: -5 },
   { id: "bali-stamp", ...ARTIFACT_POSITIONS.bali },
   { id: "figma", x: -400, y: -455, rotate: -6 },
 ] as const
@@ -313,7 +311,7 @@ function MobileArchive({ cinemaOpen, onCinema, onPhoto, onMixtape }: { cinemaOpe
     </header>
     <section aria-labelledby="mobile-objects"><div className="mobile-section-title"><span>01</span><h2 id="mobile-objects">Selected objects</h2></div>
       <div className="mobile-object-grid">
-        <div className="mobile-object pokemon-mobile"><img src="/archive/assets/pokemon.png" alt="Pokémon personal reference" /><span>Pokémon · personal reference</span></div>
+        <div className="mobile-object pokemon-mobile"><img src="/archive/assets/pokemon.svg" alt="Pokémon personal reference" /><span>Pokémon · personal reference</span></div>
         <button type="button" className="mobile-object mobile-album" onClick={onMixtape}><img src="/archive/assets/song-1.jpg" alt="Mardy Bum by Arctic Monkeys album cover" /><span><strong>Andre&apos;s Mixtape</strong><small>Mardy Bum · Arctic Monkeys</small></span></button>
         <button type="button" className="mobile-object" onClick={onCinema} aria-expanded={cinemaOpen}><strong>Cinema</strong><span>{cinemaOpen ? "Spider-Man: Into the Spider-Verse" : "Films I keep thinking about"}</span></button>
       </div>
@@ -329,15 +327,18 @@ export default function App() {
   const [cinemaOpen, setCinemaOpen] = useState(false)
   const [photoIndex, setPhotoIndex] = useState(0)
   const [albumSelected, setAlbumSelected] = useState(false)
+  const [trackIndex, setTrackIndex] = useState(0)
   const [audioPlaying, setAudioPlaying] = useState(false)
   const [nowPlaying, setNowPlaying] = useState("")
   const [discoveries, setDiscoveries] = useState<string[]>([])
   const [disturbed, setDisturbed] = useState<string[]>([])
-  const [soundOn, setSoundOn] = useState(false)
+  const [audioMuted, setAudioMuted] = useState(false)
+  const [lightMode, setLightMode] = useState(false)
   const [assetLayout, setAssetLayout] = useState<Record<string, { x: number; y: number; rotate: number }>>(() => Object.fromEntries(RANDOMIZABLE_ASSETS.map((asset) => [asset.id, { x: asset.x, y: asset.y, rotate: asset.rotate }])))
   const audioRef = useRef<HTMLAudioElement>(null)
   const soundContextRef = useRef<AudioContext | null>(null)
-  const track = tracks[0]
+  const track = tracks[trackIndex]
+  const BOARD_ARTIFACT_COUNT = BOARD_ASSETS.length + 22
   const drag = useRef<{ active: boolean; moved: boolean; sx: number; sy: number; ox: number; oy: number }>({
     active: false,
     moved: false,
@@ -354,7 +355,7 @@ export default function App() {
     disturb(id)
   }, [disturb])
   const playMicroSound = useCallback((kind: "camera" | "card" | "projector" | "ui" | "mechanical") => {
-    if (!soundOn) return
+    if (audioMuted) return
     const context = soundContextRef.current ?? new AudioContext()
     soundContextRef.current = context
     void context.resume()
@@ -371,22 +372,33 @@ export default function App() {
     oscillator.connect(gain).connect(context.destination)
     oscillator.start()
     oscillator.stop(context.currentTime + durations[kind])
-  }, [soundOn])
-  const toggleAlbumPlayback = useCallback(async () => {
+  }, [audioMuted])
+  const toggleAlbumPlayback = useCallback(async (nextTrackIndex = trackIndex) => {
     const audio = audioRef.current
-    if (!audio || !track?.src) return
+    const nextTrack = tracks[nextTrackIndex]
+    if (!audio || !nextTrack?.src) return
     playMicroSound("mechanical")
-    disturb("mixtape")
-    if (albumSelected) {
+    disturb(nextTrackIndex === 0 ? "mixtape" : "song-two")
+    if (albumSelected && trackIndex === nextTrackIndex) {
       audio.pause()
       audio.currentTime = 0
       setAlbumSelected(false)
       setAudioPlaying(false)
       return
     }
+    if (trackIndex !== nextTrackIndex) {
+      setTrackIndex(nextTrackIndex)
+      audio.pause()
+      audio.src = nextTrack.src
+      audio.muted = audioMuted
+      audio.load()
+      setAlbumSelected(true)
+      requestAnimationFrame(() => { void audio.play().catch(() => setAudioPlaying(false)) })
+      return
+    }
     setAlbumSelected(true)
     try { await audio.play() } catch { setAudioPlaying(false) }
-  }, [albumSelected, disturb, playMicroSound, track?.src])
+  }, [albumSelected, audioMuted, disturb, playMicroSound, trackIndex])
   const randomizeArchive = useCallback(() => {
     const slots = RANDOMIZABLE_ASSETS.map((asset) => assetLayout[asset.id] ?? { x: asset.x, y: asset.y, rotate: asset.rotate })
     for (let index = slots.length - 1; index > 0; index -= 1) {
@@ -476,7 +488,7 @@ export default function App() {
       {/* ---- The board plane (everything pans together) ---- */}
       <div
         className="archive-plane absolute inset-0"
-        style={{ transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(.78)`, transformOrigin: "center" }}
+        style={{ transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(var(--board-scale, .78))`, transformOrigin: "center" }}
       >
         {/* ===== Central identity card ===== */}
         <div
@@ -485,7 +497,7 @@ export default function App() {
           style={{ left: "50%", top: "50%", transform: "translate(-50%, -50%)", zIndex: 50 }}
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <div className="identity-card">
+          <div className={`identity-card ${lightMode ? "is-light" : "is-dark"}`}>
             <header className="identity-header">
               <img src="/archive/assets/pict-3.jpg" alt="Portrait of Andre Sanjaya" />
               <div><h1>Andre Sanjaya</h1><p>UI/UX Designer</p></div>
@@ -520,7 +532,7 @@ export default function App() {
 
         {/* ===== POKÉMON — upper-left collectible ===== */}
         <Artifact {...layoutFor("pokemon", ARTIFACT_POSITIONS.pokemon)} label="Pokémon" className="cursor-pokemon" onOpen={() => { discover("pokemon"); playMicroSound("card") }}>
-          <img src="/archive/assets/pokemon.png" alt="Pokémon personal reference" className="pokemon-asset" />
+          <img src="/archive/assets/pokemon.svg" alt="Pokémon personal reference" className="pokemon-asset" />
         </Artifact>
 
         {/* ===== MARVEL — upper-right ticket/comic ===== */}
@@ -558,8 +570,6 @@ export default function App() {
               <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#e23b34]">
                 <div className="h-8 w-8" style={{ background: "#0d1836", clipPath: "polygon(50% 0, 62% 40%, 100% 50%, 62% 60%, 50% 100%, 38% 60%, 0 50%, 38% 40%)" }} />
               </div>
-              <p className="mt-2 text-center font-serif text-[13px] font-bold text-white">Friendly</p>
-              <p className="text-center font-mono text-[8px] uppercase tracking-[0.2em] text-[#e23b34]">Neighborhood</p>
             </div>
           </div>
           <img src="/archive/assets/spiderman.webp" alt="Spider-Man reference" className="board-image-asset" />
@@ -572,7 +582,7 @@ export default function App() {
         <Artifact {...layoutFor("pict-two", ARTIFACT_POSITIONS.onFoot)} label="Open kindergarten photograph" className="cursor-camera" onOpen={() => { setPhotoIndex(1); setPanel("photo"); disturb("photo-kindergarten"); playMicroSound("camera") }}>
           <Polaroid src={PHOTOS[1].src} caption={PHOTOS[1].caption} fit="contain" focus="center" />
         </Artifact>
-        <Artifact {...layoutFor("pict-four", ARTIFACT_POSITIONS.stillness)} label="Open childhood artwork" className="cursor-camera" onOpen={() => { setPhotoIndex(2); setPanel("photo"); disturb("photo-pokemon-day"); playMicroSound("camera") }}>
+        <Artifact {...layoutFor("pict-four", ARTIFACT_POSITIONS.stillness)} label="Open mirror selfie" className="cursor-camera" onOpen={() => { setPhotoIndex(2); setPanel("photo"); disturb("photo-mirror-selfie"); playMicroSound("camera") }}>
           <Polaroid src={PHOTOS[2].src} caption={PHOTOS[2].caption} />
         </Artifact>
 
@@ -582,11 +592,19 @@ export default function App() {
         </Artifact>
 
         {/* ===== Album and vinyl (lower-center) ===== */}
-        <Artifact {...layoutFor("mixtape", ARTIFACT_POSITIONS.cassette)} label={albumSelected ? "Stop Andre's Mixtape" : "Play Andre's Mixtape"} className="cursor-music" onOpen={() => void toggleAlbumPlayback()}>
-          <div className={`record-artifact ${albumSelected ? "is-open" : ""} ${audioPlaying ? "is-playing" : ""}`}>
+        <Artifact {...layoutFor("mixtape", ARTIFACT_POSITIONS.cassette)} label="Mardy Bum · Arctic Monkeys" className="cursor-music" onOpen={() => void toggleAlbumPlayback()}>
+          <div className={`record-artifact ${albumSelected && trackIndex === 0 ? "is-open" : ""} ${audioPlaying && trackIndex === 0 ? "is-playing" : ""}`}>
             <div className="vinyl-record" aria-hidden="true"><span /></div>
             <div className="record-sleeve"><img src="/archive/assets/song-1.jpg" alt="Mardy Bum by Arctic Monkeys album cover" /></div>
-            <span className="record-caption">Andre&apos;s mixtape · Side A</span>
+            <span className="record-caption"><strong>{tracks[0].title}</strong><small>{tracks[0].artist}</small></span>
+          </div>
+        </Artifact>
+
+        <Artifact {...layoutFor("song-two", { x: 760, y: 520, rotate: -5 })} z={40} width={112} label="Good Riddance · Green Day" className="cursor-music" onOpen={() => void toggleAlbumPlayback(1)}>
+          <div className={`record-artifact record-artifact-small ${albumSelected && trackIndex === 1 ? "is-open" : ""} ${audioPlaying && trackIndex === 1 ? "is-playing" : ""}`}>
+            <div className="vinyl-record" aria-hidden="true"><span /></div>
+            <div className="record-sleeve"><img src="/archive/assets/song-2.jpg" alt="Good Riddance album cover" /></div>
+            <span className="record-caption"><strong>{tracks[1].title}</strong><small>{tracks[1].artist}</small></span>
           </div>
         </Artifact>
 
@@ -652,20 +670,20 @@ export default function App() {
         {BOARD_ASSETS.map((asset) => {
           const layout = assetLayout[asset.id] ?? asset
           const isMovie = asset.id.startsWith("movie") || asset.id === "letterboxd"
-          const isPokemonCard = asset.id === "pokemon-card"
-          return <Artifact key={asset.id} x={layout.x} y={layout.y} rotate={layout.rotate} z={30} width={asset.width} label={asset.caption} className={isMovie ? "cursor-cinema" : isPokemonCard ? "cursor-pokemon" : ""} onOpen={() => { disturb(asset.id); if (isMovie) playMicroSound("projector"); else if (isPokemonCard) playMicroSound("card") }}>
-            <img src={asset.src} alt={asset.alt} className="board-image-asset" />
+          const isBook = asset.id.startsWith("book")
+          return <Artifact key={asset.id} x={layout.x} y={layout.y} rotate={layout.rotate} z={30} width={asset.width} label={asset.caption} className={isMovie ? "cursor-cinema" : ""} onOpen={() => { disturb(asset.id); if (isMovie) playMicroSound("projector") }}>
+            {isBook ? <div className="book-artifact"><img src={asset.src} alt={asset.alt} className="board-image-asset" /><span>{asset.caption}</span></div> : <img src={asset.src} alt={asset.alt} className="board-image-asset" />}
           </Artifact>
         })}
 
         {/* ===== Books (lower-left cluster) ===== */}
-        <Artifact {...ARTIFACT_POSITIONS.rams}>
+        <Artifact {...ARTIFACT_POSITIONS.rams} className="hidden">
           <div className="h-28 w-full rounded-sm bg-[#e05a17] px-2 py-3 ring-1 ring-black/20">
             <p className="font-serif text-[12px] font-bold leading-tight text-white">dieter<br />rams</p>
             <p className="mt-8 font-mono text-[7px] tracking-widest text-white/80">LESS · BUT BETTER</p>
           </div>
         </Artifact>
-        <Artifact {...ARTIFACT_POSITIONS.typeBook}>
+        <Artifact {...ARTIFACT_POSITIONS.typeBook} className="hidden">
           <div className="h-24 w-full rounded-sm bg-[#111] px-2 py-3 ring-1 ring-white/10">
             <p className="font-serif text-[11px] font-bold leading-tight text-[#f2c318]">The Shape<br />of Type</p>
           </div>
@@ -709,6 +727,8 @@ $ _</pre>
           ].map(([label, icon, active]) => (
             <button
               key={label as string}
+              title={label as string}
+              data-tooltip={label as string}
               onClick={() => { if (label === "Music") void toggleAlbumPlayback(); else if (label === "Photos") { setPhotoIndex(0); setPanel("photo") } else setPan({ x: 0, y: 0 }) }}
               className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[11px] transition ${
                 active
@@ -723,22 +743,39 @@ $ _</pre>
           <span className="mx-1 h-5 w-px bg-white/12" />
           <button
             type="button"
-            aria-label={soundOn ? "Turn archive sounds off" : "Turn archive sounds on"}
-            aria-pressed={soundOn}
-            onClick={() => setSoundOn((value) => !value)}
-            className={`sound-toggle h-8 rounded-full px-3 font-mono text-[9px] transition ${soundOn ? "is-on" : ""}`}
+            title={audioMuted ? "Unmute audio" : "Mute audio"}
+            aria-label={audioMuted ? "Unmute audio" : "Mute audio"}
+            aria-pressed={audioMuted}
+            onClick={() => { const nextMuted = !audioMuted; setAudioMuted(nextMuted); if (audioRef.current) audioRef.current.muted = nextMuted }}
+            className="sound-toggle grid h-8 w-8 place-items-center rounded-full text-white/55 transition hover:bg-white/6 hover:text-white"
           >
-            Sound {soundOn ? "on" : "off"}
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z" />{audioMuted ? <path d="m17 9 4 6m0-6-4 6" strokeLinecap="round" /> : <path d="M16 9.5a4 4 0 0 1 0 5" strokeLinecap="round" />}</svg>
           </button>
           <button
             type="button"
-            aria-label="Randomize archive asset positions"
+            title="Shuffle archive assets"
+            data-tooltip="Shuffle"
+            aria-label="Shuffle archive asset positions"
             onClick={randomizeArchive}
             className="grid h-8 w-8 place-items-center rounded-full text-white/55 transition hover:bg-white/6 hover:text-white"
           >
-            ↝
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3" /><circle cx="9" cy="9" r="1" fill="currentColor" stroke="none" /><circle cx="15" cy="9" r="1" fill="currentColor" stroke="none" /><circle cx="9" cy="15" r="1" fill="currentColor" stroke="none" /><circle cx="15" cy="15" r="1" fill="currentColor" stroke="none" /></svg>
           </button>
           <button
+            type="button"
+            title={lightMode ? "Dark card" : "Light card"}
+            data-tooltip={lightMode ? "Dark card" : "Light card"}
+            aria-label={lightMode ? "Use dark identity card" : "Use light identity card"}
+            aria-pressed={lightMode}
+            onClick={() => setLightMode((value) => !value)}
+            className="grid h-8 w-8 place-items-center rounded-full text-white/55 transition hover:bg-white/6 hover:text-white"
+          >
+            {lightMode ? "☾" : "☼"}
+          </button>
+          <button
+            type="button"
+            title="Open Andre's Mixtape"
+            data-tooltip="Music"
             aria-label="Open Andre's Mixtape"
             onClick={() => void toggleAlbumPlayback()}
             className="grid h-8 w-8 place-items-center rounded-full text-white/55 transition hover:bg-white/6 hover:text-white"
@@ -753,7 +790,7 @@ $ _</pre>
         Andre&apos;s Archive
       </div>
       <div className="curiosity-counter" role="status" aria-live="polite">
-        {disturbed.length} / ?? artifacts disturbed
+        {disturbed.length} / {BOARD_ARTIFACT_COUNT} artifacts disturbed
       </div>
       <div className="coordinate-readout" aria-label={`Board position x ${Math.round(pan.x)}, y ${Math.round(pan.y)}`}>
         <span>x {Math.round(pan.x)}</span><span>y {Math.round(pan.y)}</span>
