@@ -349,7 +349,10 @@ export default function App() {
   })
   const [grabbing, setGrabbing] = useState(false)
   const panFrame = useRef<number | null>(null)
+  const momentumFrame = useRef<number | null>(null)
   const pendingPan = useRef({ x: 0, y: 0 })
+  const panVelocity = useRef({ x: 0, y: 0 })
+  const lastPointer = useRef({ x: 0, y: 0, time: 0 })
   const curiosityFound = ["figma", "pokemon"].every((id) => discoveries.includes(id))
   const disturb = useCallback((id: string) => setDisturbed((current) => current.includes(id) ? current : [...current, id]), [])
   const discover = useCallback((id: string) => {
@@ -433,9 +436,45 @@ export default function App() {
 
   const clamp = (v: number, m: number) => Math.max(-m, Math.min(m, v))
 
+  const stopMomentum = () => {
+    if (momentumFrame.current !== null) {
+      window.cancelAnimationFrame(momentumFrame.current)
+      momentumFrame.current = null
+    }
+    panVelocity.current = { x: 0, y: 0 }
+  }
+
+  const continueMomentum = () => {
+    const velocity = panVelocity.current
+    velocity.x *= 0.94
+    velocity.y *= 0.94
+    if (Math.abs(velocity.x) < 0.1 && Math.abs(velocity.y) < 0.1) {
+      momentumFrame.current = null
+      return
+    }
+
+    const next = {
+      x: clamp(pendingPan.current.x + velocity.x, 640),
+      y: clamp(pendingPan.current.y + velocity.y, 460),
+    }
+    if (next.x === pendingPan.current.x) velocity.x = 0
+    if (next.y === pendingPan.current.y) velocity.y = 0
+    pendingPan.current = next
+    setPan(next)
+    momentumFrame.current = window.requestAnimationFrame(continueMomentum)
+  }
+
+  const startMomentum = () => {
+    stopMomentum()
+    if (Math.abs(panVelocity.current.x) < 0.1 && Math.abs(panVelocity.current.y) < 0.1) return
+    momentumFrame.current = window.requestAnimationFrame(continueMomentum)
+  }
+
   const onPointerDown = useCallback(
     (e: React.PointerEvent) => {
+      stopMomentum()
       drag.current = { active: true, moved: false, sx: e.clientX, sy: e.clientY, ox: pan.x, oy: pan.y }
+      lastPointer.current = { x: e.clientX, y: e.clientY, time: performance.now() }
       e.currentTarget.setPointerCapture(e.pointerId)
       setGrabbing(true)
     },
@@ -446,6 +485,13 @@ export default function App() {
     if (!drag.current.active) return
     const dx = e.clientX - drag.current.sx
     const dy = e.clientY - drag.current.sy
+    const now = performance.now()
+    const elapsed = Math.max(1, now - lastPointer.current.time)
+    panVelocity.current = {
+      x: Math.max(-40, Math.min(40, (e.clientX - lastPointer.current.x) / elapsed * 16.67)),
+      y: Math.max(-40, Math.min(40, (e.clientY - lastPointer.current.y) / elapsed * 16.67)),
+    }
+    lastPointer.current = { x: e.clientX, y: e.clientY, time: now }
     if (Math.abs(dx) > 4 || Math.abs(dy) > 4) drag.current.moved = true
     pendingPan.current = { x: clamp(drag.current.ox + dx, 640), y: clamp(drag.current.oy + dy, 460) }
     if (panFrame.current === null) {
@@ -457,10 +503,13 @@ export default function App() {
   }, [])
 
   const onPointerUp = useCallback((e: React.PointerEvent) => {
+    if (!drag.current.active) return
     if (drag.current.moved) disturb("board-pan")
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId)
+    const shouldStartMomentum = drag.current.moved
     drag.current.active = false
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId)
     setGrabbing(false)
+    if (shouldStartMomentum) startMomentum()
   }, [disturb])
 
   return (
