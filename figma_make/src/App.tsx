@@ -11,7 +11,7 @@ import { DustArtifact, PeelNote, ScratchCard } from "../../src/components/archiv
 const PHOTOS = [
   { src: "/archive/assets/pict-1.jpg", title: "Graduation", year: "", caption: "graduation" },
   { src: "/archive/assets/pict-2.png", title: "Kindergarten", year: "", caption: "kindergarten" },
-  { src: "/archive/assets/pict-4.JPEG", title: "Mirror selfie", year: "", caption: "mirror selfie" },
+  { src: "/archive/assets/pict-4.jpg", title: "Mirror selfie", year: "", caption: "mirror selfie" },
   { src: "/archive/assets/pict-5.JPG", title: "Archive photograph", year: "", caption: "personal reference" },
 ]
 
@@ -413,6 +413,13 @@ export default function App() {
   }, [assetLayout, disturb, playMicroSound])
 
   const layoutFor = <T extends { x: number; y: number; rotate: number },>(id: string, fallback: T) => ({ ...fallback, ...assetLayout[id] })
+  const resetHomePosition = () => {
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      setPan({ x: window.innerWidth / 2 - 640, y: window.innerHeight / 2 - 450 })
+      return
+    }
+    setPan({ x: 0, y: 0 })
+  }
 
   useEffect(() => {
     if (window.matchMedia('(max-width: 767px)').matches) {
@@ -467,7 +474,8 @@ export default function App() {
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
-      onPointerLeave={onPointerUp}
+      onPointerCancel={onPointerUp}
+      onLostPointerCapture={onPointerUp}
       onWheel={(e) => {
         const horizontalDelta = e.deltaX || (e.shiftKey ? e.deltaY : 0)
         if (horizontalDelta) {
@@ -743,7 +751,7 @@ $ _</pre>
               key={label as string}
               title={label as string}
               data-tooltip={label as string}
-              onClick={() => { if (label === "Music") void toggleAlbumPlayback(); else if (label === "Photos") { setPhotoIndex(0); setPanel("photo") } else setPan({ x: 0, y: 0 }) }}
+              onClick={() => { if (label === "Music") void toggleAlbumPlayback(); else if (label === "Photos") { setPhotoIndex(0); setPanel("photo") } else if (label === "Home") resetHomePosition() }}
               className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[11px] transition ${
                 active
                   ? "bg-white/12 text-white"
