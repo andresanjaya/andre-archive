@@ -116,7 +116,6 @@ function Artifact({
         role={interactive ? "button" : undefined}
         tabIndex={interactive ? 0 : undefined}
         aria-label={label}
-        onPointerDown={interactive ? (e) => e.stopPropagation() : undefined}
         onClick={
           onOpen
             ? (e) => {
@@ -328,28 +327,33 @@ export default function App() {
   const [photoIndex, setPhotoIndex] = useState(0)
   const [albumSelected, setAlbumSelected] = useState(false)
   const [trackIndex, setTrackIndex] = useState(0)
+  const [activeTrackId, setActiveTrackId] = useState<string | null>(null)
   const [audioPlaying, setAudioPlaying] = useState(false)
   const [nowPlaying, setNowPlaying] = useState("")
   const [discoveries, setDiscoveries] = useState<string[]>([])
   const [disturbed, setDisturbed] = useState<string[]>([])
   const [audioMuted, setAudioMuted] = useState(false)
   const [lightMode, setLightMode] = useState(false)
+  const [localTime, setLocalTime] = useState("--:--:--")
   const [assetLayout, setAssetLayout] = useState<Record<string, { x: number; y: number; rotate: number }>>(() => Object.fromEntries(RANDOMIZABLE_ASSETS.map((asset) => [asset.id, { x: asset.x, y: asset.y, rotate: asset.rotate }])))
   const audioRef = useRef<HTMLAudioElement>(null)
+  const activeTrackRef = useRef<string | null>(null)
+  const playbackRequest = useRef(0)
   const soundContextRef = useRef<AudioContext | null>(null)
   const track = tracks[trackIndex]
   const BOARD_ARTIFACT_COUNT = BOARD_ASSETS.length + 22
-  const drag = useRef<{ active: boolean; moved: boolean; sx: number; sy: number; ox: number; oy: number }>({
+  const drag = useRef<{ active: boolean; pointerId: number; moved: boolean; sx: number; sy: number; ox: number; oy: number }>({
     active: false,
+    pointerId: -1,
     moved: false,
     sx: 0,
     sy: 0,
     ox: 0,
     oy: 0,
   })
-  const [grabbing, setGrabbing] = useState(false)
   const panFrame = useRef<number | null>(null)
   const momentumFrame = useRef<number | null>(null)
+  const momentumLastFrame = useRef(0)
   const pendingPan = useRef({ x: 0, y: 0 })
   const panVelocity = useRef({ x: 0, y: 0 })
   const lastPointer = useRef({ x: 0, y: 0, time: 0 })
@@ -378,32 +382,50 @@ export default function App() {
     oscillator.start()
     oscillator.stop(context.currentTime + durations[kind])
   }, [audioMuted])
-  const toggleAlbumPlayback = useCallback(async (nextTrackIndex = trackIndex) => {
+  const playTrack = useCallback((nextTrack: typeof tracks[number]) => {
     const audio = audioRef.current
-    const nextTrack = tracks[nextTrackIndex]
     if (!audio || !nextTrack?.src) return
     playMicroSound("mechanical")
-    disturb(nextTrackIndex === 0 ? "mixtape" : "song-two")
-    if (albumSelected && trackIndex === nextTrackIndex) {
+    disturb(nextTrack.id === tracks[0].id ? "mixtape" : "song-two")
+    const request = ++playbackRequest.current
+    if (activeTrackRef.current === nextTrack.id) {
       audio.pause()
       audio.currentTime = 0
-      setAlbumSelected(false)
+      activeTrackRef.current = null
+      setActiveTrackId(null)
       setAudioPlaying(false)
+      setAlbumSelected(false)
       return
     }
-    if (trackIndex !== nextTrackIndex) {
-      setTrackIndex(nextTrackIndex)
-      audio.pause()
-      audio.src = nextTrack.src
-      audio.muted = audioMuted
-      audio.load()
-      setAlbumSelected(true)
-      requestAnimationFrame(() => { void audio.play().catch(() => setAudioPlaying(false)) })
-      return
-    }
+
+    audio.pause()
+    activeTrackRef.current = nextTrack.id
+    setActiveTrackId(nextTrack.id)
+    setTrackIndex(tracks.findIndex((item) => item.id === nextTrack.id))
     setAlbumSelected(true)
-    try { await audio.play() } catch { setAudioPlaying(false) }
-  }, [albumSelected, audioMuted, disturb, playMicroSound, trackIndex])
+    setAudioPlaying(false)
+    setNowPlaying(`${nextTrack.title} — ${nextTrack.artist}`)
+    audio.muted = audioMuted
+    if (audio.getAttribute("src") !== nextTrack.src) {
+      audio.src = nextTrack.src
+      audio.load()
+    } else {
+      audio.currentTime = 0
+    }
+    void audio.play().then(() => {
+      if (request === playbackRequest.current && activeTrackRef.current === nextTrack.id) setAudioPlaying(true)
+    }).catch(() => {
+      if (request !== playbackRequest.current) return
+      activeTrackRef.current = null
+      setActiveTrackId(null)
+      setAudioPlaying(false)
+      setAlbumSelected(false)
+    })
+  }, [audioMuted, disturb, playMicroSound])
+  const toggleAlbumPlayback = useCallback((nextTrackIndex = trackIndex) => {
+    const nextTrack = tracks[nextTrackIndex]
+    if (nextTrack) void playTrack(nextTrack)
+  }, [playTrack, trackIndex])
   const randomizeArchive = useCallback(() => {
     const slots = RANDOMIZABLE_ASSETS.map((asset) => assetLayout[asset.id] ?? { x: asset.x, y: asset.y, rotate: asset.rotate })
     for (let index = slots.length - 1; index > 0; index -= 1) {
@@ -417,22 +439,35 @@ export default function App() {
 
   const layoutFor = <T extends { x: number; y: number; rotate: number },>(id: string, fallback: T) => ({ ...fallback, ...assetLayout[id] })
   const resetHomePosition = () => {
+    stopMomentum()
     if (window.matchMedia('(max-width: 767px)').matches) {
-      setPan({ x: window.innerWidth / 2 - 640, y: window.innerHeight / 2 - 450 })
+      const position = { x: window.innerWidth / 2 - 640, y: window.innerHeight / 2 - 450 }
+      pendingPan.current = position
+      setPan(position)
       return
     }
+    pendingPan.current = { x: 0, y: 0 }
     setPan({ x: 0, y: 0 })
   }
 
   useEffect(() => {
     if (window.matchMedia('(max-width: 767px)').matches) {
-      setPan({ x: window.innerWidth / 2 - 640, y: window.innerHeight / 2 - 450 })
+      const position = { x: window.innerWidth / 2 - 640, y: window.innerHeight / 2 - 450 }
+      pendingPan.current = position
+      setPan(position)
     }
   }, [])
 
   useEffect(() => {
     if (curiosityFound) disturb("secret-curiosity")
   }, [curiosityFound, disturb])
+
+  useEffect(() => {
+    const updateTime = () => setLocalTime(new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(new Date()))
+    updateTime()
+    const timer = window.setInterval(updateTime, 1000)
+    return () => window.clearInterval(timer)
+  }, [])
 
   const clamp = (v: number, m: number) => Math.max(-m, Math.min(m, v))
 
@@ -441,21 +476,25 @@ export default function App() {
       window.cancelAnimationFrame(momentumFrame.current)
       momentumFrame.current = null
     }
+    momentumLastFrame.current = 0
     panVelocity.current = { x: 0, y: 0 }
   }
 
-  const continueMomentum = () => {
+  const continueMomentum = (now: number) => {
     const velocity = panVelocity.current
-    velocity.x *= 0.94
-    velocity.y *= 0.94
+    const frameRatio = Math.min((now - (momentumLastFrame.current || now - 16.67)) / 16.67, 2)
+    momentumLastFrame.current = now
+    const friction = Math.pow(0.92, frameRatio)
+    velocity.x *= friction
+    velocity.y *= friction
     if (Math.abs(velocity.x) < 0.1 && Math.abs(velocity.y) < 0.1) {
       momentumFrame.current = null
       return
     }
 
     const next = {
-      x: clamp(pendingPan.current.x + velocity.x, 640),
-      y: clamp(pendingPan.current.y + velocity.y, 460),
+      x: clamp(pendingPan.current.x + velocity.x * frameRatio, 640),
+      y: clamp(pendingPan.current.y + velocity.y * frameRatio, 460),
     }
     if (next.x === pendingPan.current.x) velocity.x = 0
     if (next.y === pendingPan.current.y) velocity.y = 0
@@ -465,34 +504,44 @@ export default function App() {
   }
 
   const startMomentum = () => {
-    stopMomentum()
-    if (Math.abs(panVelocity.current.x) < 0.1 && Math.abs(panVelocity.current.y) < 0.1) return
+    if (momentumFrame.current !== null) window.cancelAnimationFrame(momentumFrame.current)
+    if (Math.abs(panVelocity.current.x) < 0.35 && Math.abs(panVelocity.current.y) < 0.35) return
+    momentumLastFrame.current = 0
     momentumFrame.current = window.requestAnimationFrame(continueMomentum)
   }
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent) => {
+      if (!e.isPrimary) return
+      if (e.pointerType === "mouse" && e.button !== 0) return
       stopMomentum()
-      drag.current = { active: true, moved: false, sx: e.clientX, sy: e.clientY, ox: pan.x, oy: pan.y }
+      if (e.target instanceof Element && e.target.closest("button, a, input, textarea, select")) return
+      drag.current = { active: true, pointerId: e.pointerId, moved: false, sx: e.clientX, sy: e.clientY, ox: pendingPan.current.x, oy: pendingPan.current.y }
       lastPointer.current = { x: e.clientX, y: e.clientY, time: performance.now() }
-      e.currentTarget.setPointerCapture(e.pointerId)
-      setGrabbing(true)
     },
-    [pan],
+    [],
   )
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
-    if (!drag.current.active) return
+    if (!drag.current.active || drag.current.pointerId !== e.pointerId) return
     const dx = e.clientX - drag.current.sx
     const dy = e.clientY - drag.current.sy
     const now = performance.now()
     const elapsed = Math.max(1, now - lastPointer.current.time)
+    const sample = {
+      x: Math.max(-35, Math.min(35, (e.clientX - lastPointer.current.x) / elapsed * 16.67)),
+      y: Math.max(-35, Math.min(35, (e.clientY - lastPointer.current.y) / elapsed * 16.67)),
+    }
     panVelocity.current = {
-      x: Math.max(-40, Math.min(40, (e.clientX - lastPointer.current.x) / elapsed * 16.67)),
-      y: Math.max(-40, Math.min(40, (e.clientY - lastPointer.current.y) / elapsed * 16.67)),
+      x: panVelocity.current.x * .35 + sample.x * .65,
+      y: panVelocity.current.y * .35 + sample.y * .65,
     }
     lastPointer.current = { x: e.clientX, y: e.clientY, time: now }
-    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) drag.current.moved = true
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+      if (!drag.current.moved) e.currentTarget.setPointerCapture(e.pointerId)
+      drag.current.moved = true
+    }
+    if (!drag.current.moved) return
     pendingPan.current = { x: clamp(drag.current.ox + dx, 640), y: clamp(drag.current.oy + dy, 460) }
     if (panFrame.current === null) {
       panFrame.current = window.requestAnimationFrame(() => {
@@ -503,20 +552,21 @@ export default function App() {
   }, [])
 
   const onPointerUp = useCallback((e: React.PointerEvent) => {
-    if (!drag.current.active) return
+    if (!drag.current.active || drag.current.pointerId !== e.pointerId) return
     if (drag.current.moved) disturb("board-pan")
-    const shouldStartMomentum = drag.current.moved
+    const shouldStartMomentum = drag.current.moved && e.type === "pointerup" && performance.now() - lastPointer.current.time < 100 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches
     drag.current.active = false
+    drag.current.pointerId = -1
     if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId)
-    setGrabbing(false)
     if (shouldStartMomentum) startMomentum()
+    else stopMomentum()
   }, [disturb])
 
   return (
     <div
       className="relative h-screen w-screen overflow-hidden select-none archive-spatial touch-none"
       style={{
-        cursor: grabbing ? "grabbing" : "grab",
+        cursor: "default",
         backgroundColor: "#1f6b50",
         backgroundImage: "linear-gradient(115deg, rgba(255,255,255,0.025), transparent 45%, rgba(5,35,26,0.05))",
       }}
@@ -526,11 +576,14 @@ export default function App() {
       onPointerCancel={onPointerUp}
       onLostPointerCapture={onPointerUp}
       onWheel={(e) => {
-        const horizontalDelta = e.deltaX || (e.shiftKey ? e.deltaY : 0)
-        if (horizontalDelta) {
-          e.preventDefault()
-          setPan((current) => ({ x: clamp(current.x - horizontalDelta, 640), y: current.y }))
+        e.preventDefault()
+        stopMomentum()
+        const position = {
+          x: clamp(pendingPan.current.x - (e.deltaX || (e.shiftKey ? e.deltaY : 0)), 640),
+          y: clamp(pendingPan.current.y - (e.shiftKey ? 0 : e.deltaY), 460),
         }
+        pendingPan.current = position
+        setPan(position)
       }}
     >
       {/* Cutting-mat grid — major, minor, and diagonal guides */}
@@ -553,7 +606,7 @@ export default function App() {
         style={{ boxShadow: "inset 0 0 260px rgba(4,35,25,0.55)" }}
       />
 
-      {track?.src && <audio ref={audioRef} src={track.src} preload="metadata" onPlay={() => { setAudioPlaying(true); setNowPlaying(`${track.title} — ${track.artist}`) }} onPause={() => setAudioPlaying(false)} onEnded={() => { setAudioPlaying(false); setAlbumSelected(false) }} />}
+      <audio ref={audioRef} preload="metadata" onEnded={() => { activeTrackRef.current = null; setAudioPlaying(false); setAlbumSelected(false); setActiveTrackId(null) }} />
       <MobileArchive cinemaOpen={cinemaOpen} onCinema={() => { setCinemaOpen((value) => !value); disturb("cinema"); playMicroSound("projector") }} onPhoto={() => { setPhotoIndex(0); setPanel("photo"); disturb("camera"); playMicroSound("camera") }} onMixtape={() => void toggleAlbumPlayback()} />
 
       {/* ---- The board plane (everything pans together) ---- */}
@@ -566,7 +619,6 @@ export default function App() {
           className="absolute"
           data-identity-card
           style={{ left: "50%", top: "50%", transform: "translate(-50%, -50%)", zIndex: 50 }}
-          onPointerDown={(e) => e.stopPropagation()}
         >
           <div className={`identity-card ${lightMode ? "is-light" : "is-dark"}`}>
             <header className="identity-header">
@@ -585,7 +637,7 @@ export default function App() {
                 {[
                   ["UI/UX Designer", "Sanata System · Full-time · 3 yrs", "Sep 2023 — Present"],
                   ["System Implementor", "Sanata System · Full-time · 2 yrs 11 mos", "Dec 2022 — Nov 2023"],
-                  ["Mobile Application Developer", "Sanata System · Full-time · 3 mos", "Jan 2021 — Mar 2021"],
+                  ["Mobile Application Developer", "Blue Lake · Internship · 3 mos", "Jan 2021 — Mar 2021"],
                 ].map(([role, meta, period]) => <li key={role}><div><strong>{role}</strong><p>{meta}</p></div><time>{period}</time></li>)}
               </ul>
             </section>
@@ -664,15 +716,15 @@ export default function App() {
 
         {/* ===== Album and vinyl (lower-center) ===== */}
         <Artifact {...layoutFor("mixtape", ARTIFACT_POSITIONS.cassette)} label="Mardy Bum · Arctic Monkeys" className="cursor-music" onOpen={() => void toggleAlbumPlayback()}>
-          <div className={`record-artifact ${albumSelected && trackIndex === 0 ? "is-open" : ""} ${audioPlaying && trackIndex === 0 ? "is-playing" : ""}`}>
+          <div className={`record-artifact ${activeTrackId === tracks[0].id ? "is-open" : ""} ${activeTrackId === tracks[0].id && audioPlaying ? "is-playing" : ""}`}>
             <div className="vinyl-record" aria-hidden="true"><span /></div>
             <div className="record-sleeve"><img src="/archive/assets/song-1.jpg" alt="Mardy Bum by Arctic Monkeys album cover" /></div>
             <span className="record-caption"><strong>{tracks[0].title}</strong><small>{tracks[0].artist}</small></span>
           </div>
         </Artifact>
 
-        <Artifact {...layoutFor("song-two", { x: 760, y: 520, rotate: -5 })} z={40} width={112} label="Good Riddance · Green Day" className="cursor-music" onOpen={() => void toggleAlbumPlayback(1)}>
-          <div className={`record-artifact record-artifact-small ${albumSelected && trackIndex === 1 ? "is-open" : ""} ${audioPlaying && trackIndex === 1 ? "is-playing" : ""}`}>
+        <Artifact {...layoutFor("song-two", { x: 760, y: 520, rotate: -5 })} z={40} width={168} label="Good Riddance · Green Day" className="cursor-music" onOpen={() => void toggleAlbumPlayback(1)}>
+          <div className={`record-artifact ${activeTrackId === tracks[1].id ? "is-open" : ""} ${activeTrackId === tracks[1].id && audioPlaying ? "is-playing" : ""}`}>
             <div className="vinyl-record" aria-hidden="true"><span /></div>
             <div className="record-sleeve"><img src="/archive/assets/song-2.jpg" alt="Good Riddance album cover" /></div>
             <span className="record-caption"><strong>{tracks[1].title}</strong><small>{tracks[1].artist}</small></span>
@@ -865,6 +917,7 @@ $ _</pre>
       </div>
       <div className="coordinate-readout" aria-label={`Board position x ${Math.round(pan.x)}, y ${Math.round(pan.y)}`}>
         <span>x {Math.round(pan.x)}</span><span>y {Math.round(pan.y)}</span>
+        <time aria-label={`Your local time ${localTime}`}>{localTime}</time>
       </div>
 
       {/* ===== Popovers ===== */}

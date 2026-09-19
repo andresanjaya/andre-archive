@@ -155,12 +155,6 @@ input:focus-visible {
 .record-caption { position: absolute; bottom: 0; left: 0; display: grid; gap: 3px; color: rgba(255,255,255,.82); font: 7px/1 var(--font-mono); letter-spacing: .11em; text-transform: uppercase; }
 .record-caption strong { color: #f4efe4; font: 600 10px/1 var(--font-sans); letter-spacing: 0; text-transform: none; }
 .record-caption small { color: rgba(255,255,255,.56); font: inherit; }
-.record-artifact-small { width: 112px; }
-.record-artifact-small .record-sleeve { width: 100px; height: 100px; }
-.record-artifact-small .vinyl-record { width: 92px; height: 92px; }
-.record-artifact-small.is-open .vinyl-record { transform: translateX(54px) rotate(22deg); }
-.record-artifact-small.is-playing .vinyl-record { animation-name: vinyl-spin-small; }
-@keyframes vinyl-spin-small { from { transform: translateX(54px) rotate(0); } to { transform: translateX(54px) rotate(360deg); } }
 .book-artifact { position: relative; isolation: isolate; }
 .book-artifact::before, .book-artifact::after { content: ""; position: absolute; z-index: -1; inset: 4px -5px -5px 4px; border-radius: 2px; background: #f4efe4; box-shadow: 0 12px 20px rgba(3,25,17,.28); transition: transform 220ms ease, inset 220ms ease; }
 .book-artifact::after { inset: 2px -2px -2px 2px; background: #e2ddd0; }
@@ -223,7 +217,8 @@ input:focus-visible {
 .curiosity-toast { position: fixed; z-index: 90; right: 24px; bottom: 92px; padding: 10px 13px; color: #28251f; background: #ede0bd; box-shadow: 0 12px 28px rgba(4,31,23,.4); font: italic 13px/1.25 var(--font-serif); pointer-events: none; }
 .curiosity-counter { position: fixed; z-index: 90; left: 20px; top: 38px; color: rgba(255,255,255,.7); font: 8px/1 var(--font-mono); letter-spacing: .13em; text-transform: uppercase; pointer-events: none; }
 .coordinate-readout { position: fixed; z-index: 90; right: 20px; top: 16px; display: flex; gap: 6px; color: rgba(255,255,255,.56); font: 9px/1 var(--font-mono); letter-spacing: .12em; pointer-events: none; }
-.coordinate-readout span { min-width: 54px; padding: 6px 8px; border: 1px solid rgba(255,255,255,.13); background: rgba(10,43,33,.46); text-align: center; }
+.coordinate-readout span, .coordinate-readout time { min-width: 54px; padding: 6px 8px; border: 1px solid rgba(255,255,255,.13); background: rgba(10,43,33,.46); text-align: center; }
+.coordinate-readout time { min-width: 78px; font-variant-numeric: tabular-nums; }
 .sound-toggle { border: 0; color: rgba(255,255,255,.55); background: transparent; cursor: pointer; text-transform: uppercase; }
 .sound-toggle:hover { color: white; background: rgba(255,255,255,.06); }
 .sound-toggle.is-on { color: #0d1913; background: #f2c318; }
@@ -326,8 +321,7 @@ input:focus-visible {
 
 @media (max-width: 767px) {
   body { overflow: hidden; }
-  .archive-spatial { cursor: grab !important; touch-action: none; }
-  .archive-spatial:active { cursor: grabbing !important; }
+  .archive-spatial { cursor: default !important; touch-action: none; }
   .archive-plane { --board-scale: .5; display: block; min-width: 1280px; min-height: 900px; }
   .mobile-archive { display: none; }
   .mobile-identity { min-width: 0; padding: 36px 4px 42px; border-bottom: 1px solid rgba(255,255,255,.2); }
