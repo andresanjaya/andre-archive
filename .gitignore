@@ -6,3 +6,4 @@ build/
 *.tsbuildinfo
 .env*
 *.log
+/public/archive/photos/

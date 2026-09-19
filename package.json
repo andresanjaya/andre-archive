@@ -2,9 +2,12 @@
   "name": "andre-archive",
   "private": true,
   "scripts": {
+    "predev": "node scripts/sync-photos.mjs",
     "dev": "next dev",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "prebuild": "node scripts/sync-photos.mjs",
+    "sync:photos": "node scripts/sync-photos.mjs",
     "build": "next build"
   },
   "dependencies": {

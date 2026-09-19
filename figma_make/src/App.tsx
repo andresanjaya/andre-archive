@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { tracks } from "../../src/data/tracks"
 import { DustArtifact, PeelNote, ScratchCard } from "../../src/components/archive/PlayfulArtifacts"
+import MarkStudio from "../../src/components/archive/MarkStudio"
+import syncedPhotos from "../../src/data/photo-manifest.json"
 
 /* ------------------------------------------------------------------ *\
    Andre's Archive — an interactive spatial interest board.
@@ -13,7 +15,9 @@ const PHOTOS = [
   { src: "/archive/assets/pict-2.png", title: "Kindergarten", year: "", caption: "kindergarten" },
   { src: "/archive/assets/pict-4.jpg", title: "Mirror selfie", year: "", caption: "mirror selfie" },
   { src: "/archive/assets/pict-5.JPG", title: "Archive photograph", year: "", caption: "personal reference" },
+  { src: "/archive/assets/pict-3.jpg", title: "Portrait", year: "", caption: "portrait of Andre" },
 ]
+const GALLERY_PHOTOS = [...PHOTOS, ...syncedPhotos]
 
 const BOARD_ASSETS = [
   { id: "book", src: "/archive/assets/book-1.jpg", alt: "The Design of Everyday Things book cover", caption: "The Design of Everyday Things", x: -875, y: -230, rotate: -7, width: 90 },
@@ -54,7 +58,7 @@ const RANDOMIZABLE_ASSETS = [
   { id: "pict-four", ...ARTIFACT_POSITIONS.stillness },
   { id: "pict-five", ...ARTIFACT_POSITIONS.fifth },
   { id: "mixtape", ...ARTIFACT_POSITIONS.cassette },
-  { id: "song-two", x: 760, y: 520, rotate: -5 },
+  { id: "song-two", x: 1040, y: 555, rotate: -5 },
   { id: "bali-stamp", ...ARTIFACT_POSITIONS.bali },
   { id: "figma", x: -400, y: -455, rotate: -6 },
 ] as const
@@ -74,6 +78,16 @@ function SocialIcon({ name }: { name: "linkedin" | "instagram" | "github" | "mai
   if (name === "instagram") return <svg {...common}><rect x="3.3" y="3.3" width="17.4" height="17.4" rx="4.4" /><circle cx="12" cy="12" r="4" /><path d="M17.7 6.8h.01" strokeWidth="2.7" strokeLinecap="round" /></svg>
   if (name === "github") return <svg {...common}><path fill="currentColor" stroke="none" d="M12 2.6a9.5 9.5 0 0 0-3 18.51c.48.09.65-.2.65-.46v-1.67c-2.64.57-3.2-1.12-3.2-1.12-.43-1.1-1.06-1.39-1.06-1.39-.87-.6.07-.59.07-.59.96.07 1.47.99 1.47.99.85 1.47 2.24 1.04 2.78.8.09-.62.34-1.04.61-1.28-2.1-.24-4.31-1.05-4.31-4.68 0-1.03.37-1.88.98-2.54-.1-.24-.42-1.2.09-2.5 0 0 .8-.26 2.61.97A9.1 9.1 0 0 1 12 6.88c.81 0 1.62.11 2.38.32 1.82-1.23 2.61-.97 2.61-.97.51 1.3.19 2.26.1 2.5.6.66.97 1.5.97 2.54 0 3.64-2.21 4.43-4.32 4.67.34.3.64.88.64 1.78v2.64c0 .26.17.56.66.46A9.5 9.5 0 0 0 12 2.6Z" /></svg>
   return <svg {...common}><rect x="3.2" y="5.1" width="17.6" height="13.8" rx="2" /><path d="m4.1 6.4 7.9 6.3 7.9-6.3" /></svg>
+}
+
+function trapDialogTab(event: React.KeyboardEvent<HTMLDivElement>) {
+  if (event.key !== "Tab") return
+  const focusable = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'))
+  if (!focusable.length) return
+  const first = focusable[0]
+  const last = focusable[focusable.length - 1]
+  if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
 }
 
 /* --- Artifact wrapper: absolute position from center, rotation,
@@ -134,7 +148,7 @@ function Artifact({
               }
             : undefined
         }
-        className={`relative transition-[transform,filter] duration-300 ease-out will-change-transform ${
+        className={`relative transition-[transform,filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
           interactive ? "cursor-pointer" : ""
         } outline-none ${className}`}
         style={{
@@ -201,7 +215,7 @@ function Polaroid({ src, caption, fit = "cover", focus = "center" }: { src?: str
     <div className="relative w-[180px] bg-[#fbf9f2] p-2.5 pb-9">
       <Tape className="-top-2 left-1/2 -translate-x-1/2 opacity-80" rotate={-4} />
       <div className="h-[150px] w-full overflow-hidden bg-[#d8d1c2]">
-        {src ? <img src={src} alt={caption} className="h-full w-full" style={{ objectFit: fit, objectPosition: focus }} /> : <div className="photo-pending"><span>Photo pending</span><small>approved archive asset</small></div>}
+        {src ? <img src={src} alt={caption} loading="lazy" decoding="async" className="h-full w-full" style={{ objectFit: fit, objectPosition: focus }} /> : <div className="photo-pending"><span>Photo pending</span><small>approved archive asset</small></div>}
       </div>
       <p className="absolute bottom-2 left-3 font-serif text-[15px] italic text-[#2a2a2a]">
         {caption}
@@ -275,28 +289,74 @@ function Popover({
 }
 
 function PhotoViewer({ index, onChange, onClose }: { index: number; onChange: (index: number) => void; onClose: () => void }) {
-  const photo = PHOTOS[index]
+  const photo = GALLERY_PHOTOS[index]
   const closeRef = useRef<HTMLButtonElement>(null)
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null
     closeRef.current?.focus()
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose()
-      if (event.key === "ArrowLeft") onChange((index - 1 + PHOTOS.length) % PHOTOS.length)
-      if (event.key === "ArrowRight") onChange((index + 1) % PHOTOS.length)
+      if (event.key === "ArrowLeft") onChange((index - 1 + GALLERY_PHOTOS.length) % GALLERY_PHOTOS.length)
+      if (event.key === "ArrowRight") onChange((index + 1) % GALLERY_PHOTOS.length)
     }
     window.addEventListener("keydown", onKey)
     return () => { window.removeEventListener("keydown", onKey); previous?.focus() }
   }, [index, onChange, onClose])
 
-  return <div className="photo-viewer" role="presentation" onClick={onClose} onPointerDown={(event) => event.stopPropagation()}>
+  return <div className="photo-viewer" role="presentation" onClick={onClose} onPointerDown={(event) => event.stopPropagation()} onKeyDown={trapDialogTab}>
     <section role="dialog" aria-modal="true" aria-labelledby="photo-title" onClick={(event) => event.stopPropagation()}>
       <header><span>Contact sheet · {String(index + 1).padStart(2, "0")}</span><button ref={closeRef} type="button" onClick={onClose} aria-label="Close photo viewer">×</button></header>
       <div className="photo-stage">
         {photo.src ? <img src={photo.src} alt={photo.caption} /> : <div className="photo-missing"><span>Archive photograph pending</span><small>Add Andre&apos;s approved image for this record.</small></div>}
       </div>
-      <footer><div><h2 id="photo-title">{photo.title}</h2><p>{[photo.year, photo.caption].filter(Boolean).join(" · ")}</p></div><div className="photo-controls"><button type="button" onClick={() => onChange((index - 1 + PHOTOS.length) % PHOTOS.length)} aria-label="Previous photograph">←</button><button type="button" onClick={() => onChange((index + 1) % PHOTOS.length)} aria-label="Next photograph">→</button></div></footer>
+      <footer><div><h2 id="photo-title">{photo.title}</h2><p>{[photo.year, photo.caption].filter(Boolean).join(" · ")}</p></div><div className="photo-controls"><button type="button" onClick={() => onChange((index - 1 + GALLERY_PHOTOS.length) % GALLERY_PHOTOS.length)} aria-label="Previous photograph">←</button><button type="button" onClick={() => onChange((index + 1) % GALLERY_PHOTOS.length)} aria-label="Next photograph">→</button></div></footer>
     </section>
+  </div>
+}
+
+function PhotoGallery({ onOpen, onClose }: { onOpen: (index: number) => void; onClose: () => void }) {
+  const closeRef = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null
+    closeRef.current?.focus()
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !document.querySelector(".photo-viewer")) onClose()
+    }
+    window.addEventListener("keydown", onKey)
+    return () => { window.removeEventListener("keydown", onKey); previous?.focus() }
+  }, [onClose])
+
+  return <div className="photo-gallery" role="dialog" aria-modal="true" aria-labelledby="photo-gallery-title" onPointerDown={(event) => event.stopPropagation()} onWheel={(event) => event.stopPropagation()} onKeyDown={trapDialogTab}>
+    <header className="photo-gallery-header">
+      <div><span>Andre&apos;s Archive / Contact Sheets</span><h2 id="photo-gallery-title">Photos</h2><p>Personal photographs from the archive. Select an image to view it closer.</p></div>
+      <button ref={closeRef} type="button" onClick={onClose} aria-label="Close photos">Close <span aria-hidden="true">×</span></button>
+    </header>
+    <div className="photo-gallery-grid">
+      {GALLERY_PHOTOS.map((photo, index) => <button key={photo.src} type="button" onClick={() => onOpen(index)} aria-label={`View ${photo.title}`}>
+        <img src={photo.src} alt={photo.caption} loading="lazy" decoding="async" />
+        <span>{String(index + 1).padStart(2, "0")} / {photo.title}</span>
+      </button>)}
+    </div>
+  </div>
+}
+
+function AboutSheet({ onClose }: { onClose: () => void }) {
+  const closeRef = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null
+    closeRef.current?.focus()
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") onClose() }
+    window.addEventListener("keydown", onKey)
+    return () => { window.removeEventListener("keydown", onKey); previous?.focus() }
+  }, [onClose])
+  return <div className="about-sheet" role="dialog" aria-modal="true" aria-labelledby="about-sheet-title" onPointerDown={(event) => event.stopPropagation()} onWheel={(event) => event.stopPropagation()} onKeyDown={trapDialogTab}>
+    <div className="about-sheet-inner">
+      <header><span>Andre&apos;s Archive / About</span><button ref={closeRef} type="button" onClick={onClose}>Close <span aria-hidden="true">×</span></button></header>
+      <h2 id="about-sheet-title">The person behind the archive.</h2>
+      <p className="about-sheet-lead">I&apos;m Andre Sanjaya, a Product and UI UX Designer based in Bali. I&apos;m interested in clear interfaces for real workflows, especially the small decisions that make complex products easier to use.</p>
+      <div className="about-sheet-columns"><section><span>01 / Work</span><h3>What I make</h3><p>Product and interface design. The Case Files hold selected projects; Field Notes collect questions about labels, actions, feedback, filters, and error prevention.</p></section><section><span>02 / Curiosity</span><h3>What I keep</h3><p>Experiments and personal references sit beside the work as a record of the things I explore, notice, and revisit.</p></section></div>
+      <div className="about-sheet-contact"><span>Continue the conversation</span><a href="mailto:andresanjaya2506@gmail.com">andresanjaya2506@gmail.com ↗</a></div>
+    </div>
   </div>
 }
 
@@ -320,11 +380,27 @@ function MobileArchive({ cinemaOpen, onCinema, onPhoto, onMixtape }: { cinemaOpe
   </main>
 }
 
+function LocalClock() {
+  const [time, setTime] = useState("--:--:--")
+  useEffect(() => {
+    const update = () => setTime(new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(new Date()))
+    update()
+    const timer = window.setInterval(update, 1000)
+    return () => window.clearInterval(timer)
+  }, [])
+  return <time aria-label={`Your local time ${time}`}>{time}</time>
+}
+
 export default function App() {
-  const [pan, setPan] = useState({ x: 0, y: 0 })
   const [panel, setPanel] = useState<Panel>(null)
   const [cinemaOpen, setCinemaOpen] = useState(false)
   const [photoIndex, setPhotoIndex] = useState(0)
+  const [galleryOpen, setGalleryOpen] = useState(false)
+  const [aboutOpen, setAboutOpen] = useState(false)
+  const [markOpen, setMarkOpen] = useState(false)
+  const closeGallery = useCallback(() => setGalleryOpen(false), [])
+  const closeAbout = useCallback(() => setAboutOpen(false), [])
+  const closeMark = useCallback(() => setMarkOpen(false), [])
   const [albumSelected, setAlbumSelected] = useState(false)
   const [trackIndex, setTrackIndex] = useState(0)
   const [activeTrackId, setActiveTrackId] = useState<string | null>(null)
@@ -334,9 +410,13 @@ export default function App() {
   const [disturbed, setDisturbed] = useState<string[]>([])
   const [audioMuted, setAudioMuted] = useState(false)
   const [lightMode, setLightMode] = useState(false)
-  const [localTime, setLocalTime] = useState("--:--:--")
   const [assetLayout, setAssetLayout] = useState<Record<string, { x: number; y: number; rotate: number }>>(() => Object.fromEntries(RANDOMIZABLE_ASSETS.map((asset) => [asset.id, { x: asset.x, y: asset.y, rotate: asset.rotate }])))
   const audioRef = useRef<HTMLAudioElement>(null)
+  const boardRef = useRef<HTMLDivElement>(null)
+  const planeRef = useRef<HTMLDivElement>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
+  const xReadoutRef = useRef<HTMLSpanElement>(null)
+  const yReadoutRef = useRef<HTMLSpanElement>(null)
   const activeTrackRef = useRef<string | null>(null)
   const playbackRequest = useRef(0)
   const soundContextRef = useRef<AudioContext | null>(null)
@@ -438,36 +518,46 @@ export default function App() {
   }, [assetLayout, disturb, playMicroSound])
 
   const layoutFor = <T extends { x: number; y: number; rotate: number },>(id: string, fallback: T) => ({ ...fallback, ...assetLayout[id] })
+  const isMobileBoard = () => window.matchMedia("(max-width: 767px)").matches
+  const centerNativeBoard = (behavior: ScrollBehavior = "auto") => {
+    const board = boardRef.current
+    if (!board) return
+    board.scrollTo({ left: (board.scrollWidth - board.clientWidth) / 2, top: (board.scrollHeight - board.clientHeight) / 2, behavior })
+  }
+  const applyPan = (position: { x: number; y: number }) => {
+    pendingPan.current = position
+    if (planeRef.current) planeRef.current.style.transform = `translate3d(${position.x}px, ${position.y}px, 0) scale(var(--board-scale, .78))`
+    if (gridRef.current) gridRef.current.style.backgroundPosition = `${position.x}px ${position.y}px`
+    if (xReadoutRef.current) xReadoutRef.current.textContent = `x ${Math.round(position.x)}`
+    if (yReadoutRef.current) yReadoutRef.current.textContent = `y ${Math.round(position.y)}`
+  }
   const resetHomePosition = () => {
     stopMomentum()
-    if (window.matchMedia('(max-width: 767px)').matches) {
-      const position = { x: window.innerWidth / 2 - 640, y: window.innerHeight / 2 - 450 }
-      pendingPan.current = position
-      setPan(position)
+    if (isMobileBoard()) {
+      centerNativeBoard(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth")
       return
     }
-    pendingPan.current = { x: 0, y: 0 }
-    setPan({ x: 0, y: 0 })
+    applyPan({ x: 0, y: 0 })
   }
 
   useEffect(() => {
-    if (window.matchMedia('(max-width: 767px)').matches) {
-      const position = { x: window.innerWidth / 2 - 640, y: window.innerHeight / 2 - 450 }
-      pendingPan.current = position
-      setPan(position)
+    const mobile = window.matchMedia("(max-width: 767px)")
+    let frame: number | null = null
+    const syncBoardMode = () => {
+      if (frame !== null) window.cancelAnimationFrame(frame)
+      frame = window.requestAnimationFrame(() => {
+        if (mobile.matches) centerNativeBoard()
+        else { boardRef.current?.scrollTo(0, 0); applyPan({ x: 0, y: 0 }) }
+      })
     }
+    syncBoardMode()
+    mobile.addEventListener("change", syncBoardMode)
+    return () => { if (frame !== null) window.cancelAnimationFrame(frame); mobile.removeEventListener("change", syncBoardMode) }
   }, [])
 
   useEffect(() => {
     if (curiosityFound) disturb("secret-curiosity")
   }, [curiosityFound, disturb])
-
-  useEffect(() => {
-    const updateTime = () => setLocalTime(new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(new Date()))
-    updateTime()
-    const timer = window.setInterval(updateTime, 1000)
-    return () => window.clearInterval(timer)
-  }, [])
 
   const clamp = (v: number, m: number) => Math.max(-m, Math.min(m, v))
 
@@ -498,8 +588,7 @@ export default function App() {
     }
     if (next.x === pendingPan.current.x) velocity.x = 0
     if (next.y === pendingPan.current.y) velocity.y = 0
-    pendingPan.current = next
-    setPan(next)
+    applyPan(next)
     momentumFrame.current = window.requestAnimationFrame(continueMomentum)
   }
 
@@ -512,6 +601,7 @@ export default function App() {
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent) => {
+      if (isMobileBoard()) return
       if (!e.isPrimary) return
       if (e.pointerType === "mouse" && e.button !== 0) return
       stopMomentum()
@@ -523,6 +613,7 @@ export default function App() {
   )
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
+    if (isMobileBoard()) return
     if (!drag.current.active || drag.current.pointerId !== e.pointerId) return
     const dx = e.clientX - drag.current.sx
     const dy = e.clientY - drag.current.sy
@@ -542,16 +633,18 @@ export default function App() {
       drag.current.moved = true
     }
     if (!drag.current.moved) return
-    pendingPan.current = { x: clamp(drag.current.ox + dx, 640), y: clamp(drag.current.oy + dy, 460) }
+    const position = { x: clamp(drag.current.ox + dx, 640), y: clamp(drag.current.oy + dy, 460) }
+    pendingPan.current = position
     if (panFrame.current === null) {
       panFrame.current = window.requestAnimationFrame(() => {
-        setPan(pendingPan.current)
+        applyPan(pendingPan.current)
         panFrame.current = null
       })
     }
   }, [])
 
   const onPointerUp = useCallback((e: React.PointerEvent) => {
+    if (isMobileBoard()) return
     if (!drag.current.active || drag.current.pointerId !== e.pointerId) return
     if (drag.current.moved) disturb("board-pan")
     const shouldStartMomentum = drag.current.moved && e.type === "pointerup" && performance.now() - lastPointer.current.time < 100 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -564,7 +657,8 @@ export default function App() {
 
   return (
     <div
-      className="relative h-screen w-screen overflow-hidden select-none archive-spatial touch-none"
+      ref={boardRef}
+      className="relative h-screen w-screen overflow-hidden select-none archive-spatial"
       style={{
         cursor: "default",
         backgroundColor: "#1f6b50",
@@ -575,20 +669,27 @@ export default function App() {
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
       onLostPointerCapture={onPointerUp}
+      onScroll={(event) => {
+        if (!isMobileBoard()) return
+        const board = event.currentTarget
+        if (xReadoutRef.current) xReadoutRef.current.textContent = `x ${Math.round((board.scrollWidth - board.clientWidth) / 2 - board.scrollLeft)}`
+        if (yReadoutRef.current) yReadoutRef.current.textContent = `y ${Math.round((board.scrollHeight - board.clientHeight) / 2 - board.scrollTop)}`
+      }}
       onWheel={(e) => {
+        if (isMobileBoard()) return
         e.preventDefault()
         stopMomentum()
         const position = {
           x: clamp(pendingPan.current.x - (e.deltaX || (e.shiftKey ? e.deltaY : 0)), 640),
           y: clamp(pendingPan.current.y - (e.shiftKey ? 0 : e.deltaY), 460),
         }
-        pendingPan.current = position
-        setPan(position)
+        applyPan(position)
       }}
     >
       {/* Cutting-mat grid — major, minor, and diagonal guides */}
       <div
-        className="pointer-events-none absolute inset-0"
+        ref={gridRef}
+        className="archive-grid pointer-events-none absolute inset-0"
         style={{
           backgroundImage: `
             linear-gradient(var(--grid) 1px, transparent 1px),
@@ -597,12 +698,12 @@ export default function App() {
             linear-gradient(90deg, var(--grid-fine) 1px, transparent 1px),
             repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 26px)`,
           backgroundSize: "104px 104px, 104px 104px, 26px 26px, 26px 26px, 100% 100%",
-          backgroundPosition: `${pan.x}px ${pan.y}px`,
+          backgroundPosition: "0 0",
         }}
       />
       {/* vignette */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="archive-vignette pointer-events-none absolute inset-0"
         style={{ boxShadow: "inset 0 0 260px rgba(4,35,25,0.55)" }}
       />
 
@@ -611,8 +712,9 @@ export default function App() {
 
       {/* ---- The board plane (everything pans together) ---- */}
       <div
+        ref={planeRef}
         className="archive-plane absolute inset-0"
-        style={{ transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(var(--board-scale, .78))`, transformOrigin: "center" }}
+        style={{ transform: "translate3d(0, 0, 0) scale(var(--board-scale, .78))", transformOrigin: "center" }}
       >
         {/* ===== Central identity card ===== */}
         <div
@@ -622,7 +724,7 @@ export default function App() {
         >
           <div className={`identity-card ${lightMode ? "is-light" : "is-dark"}`}>
             <header className="identity-header">
-              <img src="/archive/assets/pict-3.jpg" alt="Portrait of Andre Sanjaya" />
+              <img src="/archive/assets/pict-3.jpg" alt="Portrait of Andre Sanjaya" decoding="async" />
               <div><h1>Andre Sanjaya</h1><p>UI/UX Designer</p></div>
             </header>
             <section className="identity-about" aria-label="About Andre">
@@ -723,7 +825,7 @@ export default function App() {
           </div>
         </Artifact>
 
-        <Artifact {...layoutFor("song-two", { x: 760, y: 520, rotate: -5 })} z={40} width={168} label="Good Riddance · Green Day" className="cursor-music" onOpen={() => void toggleAlbumPlayback(1)}>
+        <Artifact {...layoutFor("song-two", { x: 1040, y: 555, rotate: -5 })} z={40} width={168} label="Good Riddance · Green Day" className="cursor-music" onOpen={() => void toggleAlbumPlayback(1)}>
           <div className={`record-artifact ${activeTrackId === tracks[1].id ? "is-open" : ""} ${activeTrackId === tracks[1].id && audioPlaying ? "is-playing" : ""}`}>
             <div className="vinyl-record" aria-hidden="true"><span /></div>
             <div className="record-sleeve"><img src="/archive/assets/song-2.jpg" alt="Good Riddance album cover" /></div>
@@ -795,7 +897,7 @@ export default function App() {
           const isMovie = asset.id.startsWith("movie") || asset.id === "letterboxd"
           const isBook = asset.id.startsWith("book")
           return <Artifact key={asset.id} x={layout.x} y={layout.y} rotate={layout.rotate} z={30} width={asset.width} label={asset.caption} className={isMovie ? "cursor-cinema" : ""} onOpen={() => { disturb(asset.id); if (isMovie) playMicroSound("projector") }}>
-            {isBook ? <div className="book-artifact"><img src={asset.src} alt={asset.alt} className="board-image-asset" /><span>{asset.caption}</span></div> : <img src={asset.src} alt={asset.alt} className="board-image-asset" />}
+            {isBook ? <div className="book-artifact"><img src={asset.src} alt={asset.alt} loading="lazy" decoding="async" className="board-image-asset" /><span>{asset.caption}</span></div> : <img src={asset.src} alt={asset.alt} loading="lazy" decoding="async" className="board-image-asset" />}
           </Artifact>
         })}
 
@@ -842,17 +944,24 @@ $ _</pre>
       >
         <div className="flex items-center gap-1 rounded-full bg-[#0b1220]/85 px-2 py-1.5 shadow-2xl ring-1 ring-white/10 backdrop-blur-md">
           {[
-            ["Home", "⌂", true],
-            ["About", "◈", false],
-            ["Interests", "✦", false],
-            ["Photos", "❒", false],
-            ["Music", "♪", false],
+            ["Home", "⌂", !galleryOpen && !aboutOpen && !markOpen],
+            ["About", "◈", aboutOpen],
+            ["Make a Mark", "✎", markOpen],
+            ["Photos", "▣", galleryOpen],
           ].map(([label, icon, active]) => (
             <button
               key={label as string}
+              type="button"
               title={label as string}
               data-tooltip={label as string}
-              onClick={() => { if (label === "Music") void toggleAlbumPlayback(); else if (label === "Photos") { setPhotoIndex(0); setPanel("photo") } else if (label === "Home") resetHomePosition() }}
+              aria-label={label as string}
+              aria-current={active ? "page" : undefined}
+              onClick={() => {
+                if (label === "Home") { closeGallery(); closeAbout(); closeMark(); setPanel(null); resetHomePosition() }
+                else if (label === "About") { closeGallery(); closeMark(); setAboutOpen(true) }
+                else if (label === "Make a Mark") { closeGallery(); closeAbout(); setMarkOpen(true) }
+                else if (label === "Photos") { closeAbout(); closeMark(); setGalleryOpen(true) }
+              }}
               className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[11px] transition ${
                 active
                   ? "bg-white/12 text-white"
@@ -915,9 +1024,9 @@ $ _</pre>
       <div className="curiosity-counter" role="status" aria-live="polite">
         {disturbed.length} / {BOARD_ARTIFACT_COUNT} artifacts disturbed
       </div>
-      <div className="coordinate-readout" aria-label={`Board position x ${Math.round(pan.x)}, y ${Math.round(pan.y)}`}>
-        <span>x {Math.round(pan.x)}</span><span>y {Math.round(pan.y)}</span>
-        <time aria-label={`Your local time ${localTime}`}>{localTime}</time>
+      <div className="coordinate-readout" aria-label="Board position and local time">
+        <span ref={xReadoutRef}>x 0</span><span ref={yReadoutRef}>y 0</span>
+        <LocalClock />
       </div>
 
       {/* ===== Popovers ===== */}
@@ -942,6 +1051,9 @@ $ _</pre>
         </Popover>
       )}
       {panel === "photo" && <PhotoViewer index={photoIndex} onChange={setPhotoIndex} onClose={() => setPanel(null)} />}
+      {galleryOpen && <PhotoGallery onOpen={(index) => { setPhotoIndex(index); setPanel("photo") }} onClose={closeGallery} />}
+      {aboutOpen && <AboutSheet onClose={closeAbout} />}
+      {markOpen && <MarkStudio onClose={closeMark} />}
       {albumSelected && <div className="album-toast" role="status" aria-live="polite" onPointerDown={(event) => event.stopPropagation()}>
         <span className={audioPlaying ? "album-toast-dot is-playing" : "album-toast-dot"} aria-hidden="true" />
         <div><strong>{audioPlaying ? "Now playing" : "Mixtape paused"}</strong><p>{nowPlaying || `${track.title} — ${track.artist}`}</p></div>
