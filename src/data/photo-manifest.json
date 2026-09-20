@@ -1,1 +1,56 @@
-[]
+[
+  {
+    "src": "/archive/photos/IMG1.png",
+    "title": "IMG1",
+    "year": "",
+    "caption": "IMG1"
+  },
+  {
+    "src": "/archive/photos/IMG2.png",
+    "title": "IMG2",
+    "year": "",
+    "caption": "IMG2"
+  },
+  {
+    "src": "/archive/photos/IMG3.png",
+    "title": "IMG3",
+    "year": "",
+    "caption": "IMG3"
+  },
+  {
+    "src": "/archive/photos/IMG4.png",
+    "title": "IMG4",
+    "year": "",
+    "caption": "IMG4"
+  },
+  {
+    "src": "/archive/photos/IMG5.png",
+    "title": "IMG5",
+    "year": "",
+    "caption": "IMG5"
+  },
+  {
+    "src": "/archive/photos/IMG6.png",
+    "title": "IMG6",
+    "year": "",
+    "caption": "IMG6"
+  },
+  {
+    "src": "/archive/photos/IMG7.png",
+    "title": "IMG7",
+    "year": "",
+    "caption": "IMG7"
+  },
+  {
+    "src": "/archive/photos/IMG8.png",
+    "title": "IMG8",
+    "year": "",
+    "caption": "IMG8"
+  },
+  {
+    "src": "/archive/photos/IMG9.png",
+    "title": "IMG9",
+    "year": "",
+    "caption": "IMG9"
+  }
+]

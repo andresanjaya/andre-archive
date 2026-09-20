@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { tracks } from "../../src/data/tracks"
-import { DustArtifact, PeelNote, ScratchCard } from "../../src/components/archive/PlayfulArtifacts"
-import MarkStudio from "../../src/components/archive/MarkStudio"
+import { ScratchCard } from "../../src/components/archive/PlayfulArtifacts"
+import TinyPixelCanvas from "../../src/components/archive/TinyPixelCanvas"
 import syncedPhotos from "../../src/data/photo-manifest.json"
 
 /* ------------------------------------------------------------------ *\
@@ -11,13 +11,12 @@ import syncedPhotos from "../../src/data/photo-manifest.json"
 \* ------------------------------------------------------------------ */
 
 const PHOTOS = [
-  { src: "/archive/assets/pict-1.jpg", title: "Graduation", year: "", caption: "graduation" },
+  { src: "/archive/assets/pict-1.jpg", title: "Graduation", year: "2026", caption: "graduation" },
   { src: "/archive/assets/pict-2.png", title: "Kindergarten", year: "", caption: "kindergarten" },
-  { src: "/archive/assets/pict-4.jpg", title: "Mirror selfie", year: "", caption: "mirror selfie" },
-  { src: "/archive/assets/pict-5.JPG", title: "Archive photograph", year: "", caption: "personal reference" },
-  { src: "/archive/assets/pict-3.jpg", title: "Portrait", year: "", caption: "portrait of Andre" },
+  { src: "/archive/assets/pict-4.jpeg", title: "Personal reference", year: "", caption: "personal reference" },
+  { src: "/archive/assets/pict-5.jpeg", title: "Pikachu & Andre", year: "", caption: "pikachu & andre" },
 ]
-const GALLERY_PHOTOS = [...PHOTOS, ...syncedPhotos]
+const GALLERY_PHOTOS = syncedPhotos
 
 const BOARD_ASSETS = [
   { id: "book", src: "/archive/assets/book-1.jpg", alt: "The Design of Everyday Things book cover", caption: "The Design of Everyday Things", x: -875, y: -230, rotate: -7, width: 90 },
@@ -27,7 +26,7 @@ const BOARD_ASSETS = [
   { id: "movie-one", src: "/archive/assets/movie-1.jpg", alt: "Oppenheimer poster", caption: "Oppenheimer", x: 1020, y: -105, rotate: 6, width: 112 },
   { id: "movie-two", src: "/archive/assets/movie-2.jpg", alt: "Good Will Hunting poster", caption: "Good Will Hunting", x: -820, y: 145, rotate: -5, width: 108 },
   { id: "movie-three", src: "/archive/assets/movie-3.jpg", alt: "Eternal Sunshine of the Spotless Mind poster", caption: "Eternal Sunshine", x: 875, y: 400, rotate: 4, width: 114 },
-  { id: "movie-four", src: "/archive/assets/movie-4.jpg", alt: "Film reference", caption: "Film reference", x: 1060, y: -375, rotate: -4, width: 110 },
+  { id: "movie-four", src: "/archive/assets/movie-4.jpg", alt: "Forrest Gump", caption: "Forrest Gump", x: 1060, y: -375, rotate: -4, width: 110 },
   { id: "archive-logo", src: "/archive/assets/logo.svg", alt: "Andre Archive logo", caption: "Archive logo", x: -1060, y: -135, rotate: 5, width: 104 },
 ] as const
 
@@ -35,17 +34,13 @@ const ARTIFACT_POSITIONS = {
   pokemon: { x: -410, y: -315, rotate: -7, z: 40, width: 132 },
   marvel: { x: 555, y: -315, rotate: 5, z: 30, width: 104 },
   spiderman: { x: 665, y: 5, rotate: -5, z: 40, width: 110 },
-  north: { x: -620, y: -10, rotate: -6, z: 30 },
+  north: { x: -620, y: -110, rotate: -6, z: 30 },
   onFoot: { x: -650, y: 270, rotate: 5, z: 30 },
-  stillness: { x: 520, y: 160, rotate: 4, z: 30 },
+  stillness: { x: 650, y: -110, rotate: 4, z: 30 },
   cassette: { x: -135, y: 445, rotate: -3, z: 40, width: 168 },
-  cinema: { x: 355, y: 445, rotate: 6, z: 40, width: 170 },
   note: { x: -880, y: -80, rotate: -3, z: 20, width: 128 },
   bali: { x: 95, y: -445, rotate: 4, z: 30, width: 120 },
-  fifth: { x: -390, y: 465, rotate: -5, z: 30 },
-  rams: { x: -790, y: 420, rotate: 5, z: 20, width: 84 },
-  typeBook: { x: 435, y: -410, rotate: -8, z: 20, width: 80 },
-  terminal: { x: 850, y: 40, rotate: 5, z: 40, width: 132 },
+  fifth: { x: 650, y: 285, rotate: -5, z: 30 },
   hidden: { x: -845, y: 430, rotate: -4, z: 30, width: 190 },
 } as const
 
@@ -59,11 +54,12 @@ const RANDOMIZABLE_ASSETS = [
   { id: "pict-five", ...ARTIFACT_POSITIONS.fifth },
   { id: "mixtape", ...ARTIFACT_POSITIONS.cassette },
   { id: "song-two", x: 1040, y: 555, rotate: -5 },
+  { id: "song-three", x: 650, y: 650, rotate: 4 },
   { id: "bali-stamp", ...ARTIFACT_POSITIONS.bali },
   { id: "figma", x: -400, y: -455, rotate: -6 },
 ] as const
 
-type Panel = "spiderman" | "photo" | null
+type Panel = "spiderman" | null
 
 const SOCIAL_DESTINATIONS = [
   { icon: "linkedin", label: "LinkedIn", href: "https://www.linkedin.com/in/andresanjaya/" },
@@ -102,6 +98,7 @@ function Artifact({
   width,
   children,
   className = "",
+  entranceDelay,
 }: {
   x: number
   y: number
@@ -112,11 +109,13 @@ function Artifact({
   width?: number
   children: React.ReactNode
   className?: string
+  entranceDelay?: number
 }) {
   const interactive = Boolean(onOpen)
+  const computedEntranceDelay = entranceDelay ?? (120 + (Math.abs(Math.round(x + y)) % 8) * 70)
   return (
     <div
-      className="group absolute transition-[left,top] duration-500 ease-out"
+      className="archive-entrance group absolute transition-[left,top] duration-500 ease-out"
       data-artifact={label || "passive artifact"}
       style={{
         left: `calc(50% + ${x}px)`,
@@ -124,6 +123,7 @@ function Artifact({
         transform: "translate(-50%, -50%)",
         zIndex: z,
         width: width ? `${width}px` : undefined,
+        ["--entrance-delay" as string]: `${computedEntranceDelay}ms`,
       }}
     >
       <div
@@ -214,7 +214,7 @@ function Polaroid({ src, caption, fit = "cover", focus = "center" }: { src?: str
   return (
     <div className="relative w-[180px] bg-[#fbf9f2] p-2.5 pb-9">
       <Tape className="-top-2 left-1/2 -translate-x-1/2 opacity-80" rotate={-4} />
-      <div className="h-[150px] w-full overflow-hidden bg-[#d8d1c2]">
+      <div className="h-[190px] w-full overflow-hidden bg-[#d8d1c2]">
         {src ? <img src={src} alt={caption} loading="lazy" decoding="async" className="h-full w-full" style={{ objectFit: fit, objectPosition: focus }} /> : <div className="photo-pending"><span>Photo pending</span><small>approved archive asset</small></div>}
       </div>
       <p className="absolute bottom-2 left-3 font-serif text-[15px] italic text-[#2a2a2a]">
@@ -288,59 +288,57 @@ function Popover({
   )
 }
 
-function PhotoViewer({ index, onChange, onClose }: { index: number; onChange: (index: number) => void; onClose: () => void }) {
-  const photo = GALLERY_PHOTOS[index]
+function PhotoGallery({ onOpen, onClose, lightMode }: { onOpen: (index: number) => void; onClose: () => void; lightMode: boolean }) {
   const closeRef = useRef<HTMLButtonElement>(null)
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null
     closeRef.current?.focus()
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose()
-      if (event.key === "ArrowLeft") onChange((index - 1 + GALLERY_PHOTOS.length) % GALLERY_PHOTOS.length)
-      if (event.key === "ArrowRight") onChange((index + 1) % GALLERY_PHOTOS.length)
-    }
-    window.addEventListener("keydown", onKey)
-    return () => { window.removeEventListener("keydown", onKey); previous?.focus() }
-  }, [index, onChange, onClose])
-
-  return <div className="photo-viewer" role="presentation" onClick={onClose} onPointerDown={(event) => event.stopPropagation()} onKeyDown={trapDialogTab}>
-    <section role="dialog" aria-modal="true" aria-labelledby="photo-title" onClick={(event) => event.stopPropagation()}>
-      <header><span>Contact sheet · {String(index + 1).padStart(2, "0")}</span><button ref={closeRef} type="button" onClick={onClose} aria-label="Close photo viewer">×</button></header>
-      <div className="photo-stage">
-        {photo.src ? <img src={photo.src} alt={photo.caption} /> : <div className="photo-missing"><span>Archive photograph pending</span><small>Add Andre&apos;s approved image for this record.</small></div>}
-      </div>
-      <footer><div><h2 id="photo-title">{photo.title}</h2><p>{[photo.year, photo.caption].filter(Boolean).join(" · ")}</p></div><div className="photo-controls"><button type="button" onClick={() => onChange((index - 1 + GALLERY_PHOTOS.length) % GALLERY_PHOTOS.length)} aria-label="Previous photograph">←</button><button type="button" onClick={() => onChange((index + 1) % GALLERY_PHOTOS.length)} aria-label="Next photograph">→</button></div></footer>
-    </section>
-  </div>
-}
-
-function PhotoGallery({ onOpen, onClose }: { onOpen: (index: number) => void; onClose: () => void }) {
-  const closeRef = useRef<HTMLButtonElement>(null)
-  useEffect(() => {
-    const previous = document.activeElement as HTMLElement | null
-    closeRef.current?.focus()
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !document.querySelector(".photo-viewer")) onClose()
+      if (event.key === "Escape" && !document.querySelector(".gallery-carousel")) onClose()
     }
     window.addEventListener("keydown", onKey)
     return () => { window.removeEventListener("keydown", onKey); previous?.focus() }
   }, [onClose])
 
-  return <div className="photo-gallery" role="dialog" aria-modal="true" aria-labelledby="photo-gallery-title" onPointerDown={(event) => event.stopPropagation()} onWheel={(event) => event.stopPropagation()} onKeyDown={trapDialogTab}>
-    <header className="photo-gallery-header">
-      <div><span>Andre&apos;s Archive / Contact Sheets</span><h2 id="photo-gallery-title">Photos</h2><p>Personal photographs from the archive. Select an image to view it closer.</p></div>
-      <button ref={closeRef} type="button" onClick={onClose} aria-label="Close photos">Close <span aria-hidden="true">×</span></button>
-    </header>
+  return <div className={`photo-gallery ${lightMode ? "is-light" : ""}`} role="dialog" aria-modal="true" aria-label="Photos" onPointerDown={(event) => event.stopPropagation()} onWheel={(event) => event.stopPropagation()} onKeyDown={trapDialogTab}>
+    <button ref={closeRef} className="photo-gallery-close" type="button" onClick={onClose} aria-label="Close photos">×</button>
     <div className="photo-gallery-grid">
       {GALLERY_PHOTOS.map((photo, index) => <button key={photo.src} type="button" onClick={() => onOpen(index)} aria-label={`View ${photo.title}`}>
         <img src={photo.src} alt={photo.caption} loading="lazy" decoding="async" />
-        <span>{String(index + 1).padStart(2, "0")} / {photo.title}</span>
       </button>)}
     </div>
   </div>
 }
 
-function AboutSheet({ onClose }: { onClose: () => void }) {
+function GalleryCarousel({ index, onChange, onClose, lightMode }: { index: number; onChange: (index: number) => void; onClose: () => void; lightMode: boolean }) {
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const startX = useRef<number | null>(null)
+  const count = GALLERY_PHOTOS.length
+  const previous = (index - 1 + count) % count
+  const next = (index + 1) % count
+  useEffect(() => {
+    const lastFocus = document.activeElement as HTMLElement | null
+    closeRef.current?.focus()
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose()
+      if (event.key === "ArrowLeft") onChange(previous)
+      if (event.key === "ArrowRight") onChange(next)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => { window.removeEventListener("keydown", onKey); lastFocus?.focus() }
+  }, [index, onChange, onClose, previous, next])
+  if (!count) return null
+  return <div className={`gallery-carousel ${lightMode ? "is-light" : ""}`} role="dialog" aria-modal="true" aria-label={`Photo ${index + 1} of ${count}`} onPointerDown={(event) => { event.stopPropagation(); startX.current = event.clientX }} onPointerUp={(event) => { if (startX.current === null) return; const delta = event.clientX - startX.current; startX.current = null; if (Math.abs(delta) > 45) onChange(delta > 0 ? previous : next) }} onPointerCancel={() => { startX.current = null }} onWheel={(event) => event.stopPropagation()} onKeyDown={trapDialogTab}>
+    <button ref={closeRef} className="gallery-carousel-close" type="button" onClick={onClose} aria-label="Close photo carousel">×</button>
+    <div className="gallery-carousel-track">
+      {[previous, index, next].map((photoIndex, position) => <div key={`${photoIndex}-${position}`} className={`gallery-carousel-slide ${position === 1 ? "is-current" : ""}`}><img src={GALLERY_PHOTOS[photoIndex].src} alt={position === 1 ? `Photo ${index + 1}` : ""} decoding="async" /></div>)}
+    </div>
+    <button className="gallery-carousel-prev" type="button" onClick={() => onChange(previous)} aria-label="Previous photo">←</button>
+    <button className="gallery-carousel-next" type="button" onClick={() => onChange(next)} aria-label="Next photo">→</button>
+  </div>
+}
+
+function AboutSheet({ onClose, lightMode }: { onClose: () => void; lightMode: boolean }) {
   const closeRef = useRef<HTMLButtonElement>(null)
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null
@@ -349,9 +347,9 @@ function AboutSheet({ onClose }: { onClose: () => void }) {
     window.addEventListener("keydown", onKey)
     return () => { window.removeEventListener("keydown", onKey); previous?.focus() }
   }, [onClose])
-  return <div className="about-sheet" role="dialog" aria-modal="true" aria-labelledby="about-sheet-title" onPointerDown={(event) => event.stopPropagation()} onWheel={(event) => event.stopPropagation()} onKeyDown={trapDialogTab}>
+  return <div className={`about-sheet ${lightMode ? "is-light" : ""}`} role="dialog" aria-modal="true" aria-labelledby="about-sheet-title" onPointerDown={(event) => event.stopPropagation()} onWheel={(event) => event.stopPropagation()} onKeyDown={trapDialogTab}>
     <div className="about-sheet-inner">
-      <header><span>Andre&apos;s Archive / About</span><button ref={closeRef} type="button" onClick={onClose}>Close <span aria-hidden="true">×</span></button></header>
+      <header><button ref={closeRef} type="button" onClick={onClose}>Close <span aria-hidden="true">×</span></button></header>
       <h2 id="about-sheet-title">The person behind the archive.</h2>
       <p className="about-sheet-lead">I&apos;m Andre Sanjaya, a Product and UI UX Designer based in Bali. I&apos;m interested in clear interfaces for real workflows, especially the small decisions that make complex products easier to use.</p>
       <div className="about-sheet-columns"><section><span>01 / Work</span><h3>What I make</h3><p>Product and interface design. The Case Files hold selected projects; Field Notes collect questions about labels, actions, feedback, filters, and error prevention.</p></section><section><span>02 / Curiosity</span><h3>What I keep</h3><p>Experiments and personal references sit beside the work as a record of the things I explore, notice, and revisit.</p></section></div>
@@ -360,7 +358,7 @@ function AboutSheet({ onClose }: { onClose: () => void }) {
   </div>
 }
 
-function MobileArchive({ cinemaOpen, onCinema, onPhoto, onMixtape }: { cinemaOpen: boolean; onCinema: () => void; onPhoto: () => void; onMixtape: () => void }) {
+function MobileArchive({ cinemaOpen, onCinema, onMixtape }: { cinemaOpen: boolean; onCinema: () => void; onMixtape: () => void }) {
   return <main className="mobile-archive" onPointerDown={(event) => event.stopPropagation()}>
     <header className="mobile-identity">
       <span>Andre&apos;s Archive · Bali, Indonesia</span>
@@ -375,7 +373,7 @@ function MobileArchive({ cinemaOpen, onCinema, onPhoto, onMixtape }: { cinemaOpe
         <button type="button" className="mobile-object" onClick={onCinema} aria-expanded={cinemaOpen}><strong>Cinema</strong><span>{cinemaOpen ? "Spider-Man: Into the Spider-Verse" : "Films I keep thinking about"}</span></button>
       </div>
     </section>
-    <section aria-labelledby="mobile-photos"><div className="mobile-section-title"><span>02</span><h2 id="mobile-photos">Contact sheet</h2></div><button type="button" className="mobile-photo" onClick={onPhoto}><img src={PHOTOS[0].src} alt="Graduation portrait" /><span>Graduation</span></button></section>
+    <section aria-labelledby="mobile-photos"><div className="mobile-section-title"><span>02</span><h2 id="mobile-photos">Contact sheet</h2></div><div className="mobile-photo"><img src={PHOTOS[0].src} alt="Graduation portrait" /><span>Graduation</span></div></section>
     <section aria-labelledby="mobile-references"><div className="mobile-section-title"><span>03</span><h2 id="mobile-references">Personal references</h2></div><div className="mobile-reference-row"><img src="/archive/assets/figma-sticker.jpg" alt="Figma sticker" /><img src="/archive/assets/marvel.png" alt="Marvel reference" /><img src="/archive/assets/bali-postcard.png" alt="Bali postcard" /></div></section>
   </main>
 }
@@ -396,11 +394,11 @@ export default function App() {
   const [cinemaOpen, setCinemaOpen] = useState(false)
   const [photoIndex, setPhotoIndex] = useState(0)
   const [galleryOpen, setGalleryOpen] = useState(false)
+  const [galleryPhotoOpen, setGalleryPhotoOpen] = useState(false)
   const [aboutOpen, setAboutOpen] = useState(false)
-  const [markOpen, setMarkOpen] = useState(false)
-  const closeGallery = useCallback(() => setGalleryOpen(false), [])
+  const closeGallery = useCallback(() => { setGalleryOpen(false); setGalleryPhotoOpen(false) }, [])
   const closeAbout = useCallback(() => setAboutOpen(false), [])
-  const closeMark = useCallback(() => setMarkOpen(false), [])
+  const closePhoto = useCallback(() => setGalleryPhotoOpen(false), [])
   const [albumSelected, setAlbumSelected] = useState(false)
   const [trackIndex, setTrackIndex] = useState(0)
   const [activeTrackId, setActiveTrackId] = useState<string | null>(null)
@@ -462,11 +460,11 @@ export default function App() {
     oscillator.start()
     oscillator.stop(context.currentTime + durations[kind])
   }, [audioMuted])
-  const playTrack = useCallback((nextTrack: typeof tracks[number]) => {
+  const playTrack = useCallback(async (nextTrack: typeof tracks[number]) => {
     const audio = audioRef.current
     if (!audio || !nextTrack?.src) return
     playMicroSound("mechanical")
-    disturb(nextTrack.id === tracks[0].id ? "mixtape" : "song-two")
+    disturb(nextTrack.id === tracks[0].id ? "mixtape" : `song-${tracks.findIndex((item) => item.id === nextTrack.id) + 1}`)
     const request = ++playbackRequest.current
     if (activeTrackRef.current === nextTrack.id) {
       audio.pause()
@@ -479,6 +477,9 @@ export default function App() {
     }
 
     audio.pause()
+    audio.currentTime = 0
+    audio.removeAttribute("src")
+    audio.load()
     activeTrackRef.current = nextTrack.id
     setActiveTrackId(nextTrack.id)
     setTrackIndex(tracks.findIndex((item) => item.id === nextTrack.id))
@@ -486,21 +487,18 @@ export default function App() {
     setAudioPlaying(false)
     setNowPlaying(`${nextTrack.title} — ${nextTrack.artist}`)
     audio.muted = audioMuted
-    if (audio.getAttribute("src") !== nextTrack.src) {
-      audio.src = nextTrack.src
-      audio.load()
-    } else {
-      audio.currentTime = 0
-    }
-    void audio.play().then(() => {
+    audio.src = nextTrack.src
+    audio.load()
+    try {
+      await audio.play()
       if (request === playbackRequest.current && activeTrackRef.current === nextTrack.id) setAudioPlaying(true)
-    }).catch(() => {
+    } catch {
       if (request !== playbackRequest.current) return
       activeTrackRef.current = null
       setActiveTrackId(null)
       setAudioPlaying(false)
       setAlbumSelected(false)
-    })
+    }
   }, [audioMuted, disturb, playMicroSound])
   const toggleAlbumPlayback = useCallback((nextTrackIndex = trackIndex) => {
     const nextTrack = tracks[nextTrackIndex]
@@ -708,7 +706,7 @@ export default function App() {
       />
 
       <audio ref={audioRef} preload="metadata" onEnded={() => { activeTrackRef.current = null; setAudioPlaying(false); setAlbumSelected(false); setActiveTrackId(null) }} />
-      <MobileArchive cinemaOpen={cinemaOpen} onCinema={() => { setCinemaOpen((value) => !value); disturb("cinema"); playMicroSound("projector") }} onPhoto={() => { setPhotoIndex(0); setPanel("photo"); disturb("camera"); playMicroSound("camera") }} onMixtape={() => void toggleAlbumPlayback()} />
+      <MobileArchive cinemaOpen={cinemaOpen} onCinema={() => { setCinemaOpen((value) => !value); disturb("cinema"); playMicroSound("projector") }} onMixtape={() => void toggleAlbumPlayback()} />
 
       {/* ---- The board plane (everything pans together) ---- */}
       <div
@@ -718,7 +716,7 @@ export default function App() {
       >
         {/* ===== Central identity card ===== */}
         <div
-          className="absolute"
+          className="archive-entrance absolute"
           data-identity-card
           style={{ left: "50%", top: "50%", transform: "translate(-50%, -50%)", zIndex: 50 }}
         >
@@ -728,7 +726,7 @@ export default function App() {
               <div><h1>Andre Sanjaya</h1><p>UI/UX Designer</p></div>
             </header>
             <section className="identity-about" aria-label="About Andre">
-              <p>I&apos;m Andre Sanjaya, a Product and UI UX Designer from Bali. I enjoy designing digital experiences, collecting visual references, exploring technology, and turning curiosity into interactive ideas.</p>
+              <p>Welcome to my little corner of the internet. I&apos;m Andre, a UI/UX Designer from Bali, Indonesia. This is a collection of things I love, things I&apos;ve made, and random little discoveries that somehow found their way into my world.<br /><br />From movies, music, photography, and everything in between, this is where my interests come together without needing to make perfect sense.<br /><br />Look around, move things, click on something unexpected, and stay curious. You never know what you might find.</p>
               <div className="identity-socials" aria-label="Social destinations">
                 {SOCIAL_DESTINATIONS.map(({ icon, label, href }) => <a key={label} href={href} target={href.startsWith("http") ? "_blank" : undefined} rel={href.startsWith("http") ? "noreferrer" : undefined}><SocialIcon name={icon} />{label}</a>)}
               </div>
@@ -758,6 +756,14 @@ export default function App() {
         {/* ===== POKÉMON — upper-left collectible ===== */}
         <Artifact {...layoutFor("pokemon", ARTIFACT_POSITIONS.pokemon)} label="Pokémon" className="cursor-pokemon" onOpen={() => { discover("pokemon"); playMicroSound("card") }}>
           <img src="/archive/assets/pokemon.svg" alt="Pokémon personal reference" className="pokemon-asset" />
+        </Artifact>
+
+        <Artifact {...layoutFor("song-three", { x: 650, y: 650, rotate: 4 })} z={40} width={168} label="Gemilang · Perunggu" className="cursor-music" onOpen={() => void toggleAlbumPlayback(2)}>
+          <div className={`record-artifact ${activeTrackId === tracks[2].id ? "is-open" : ""} ${activeTrackId === tracks[2].id && audioPlaying ? "is-playing" : ""}`}>
+            <div className="vinyl-record" aria-hidden="true"><span /></div>
+            <div className="record-sleeve"><img src="/archive/assets/song-3.jpg" alt="Dalam Dinamika album cover" /></div>
+            <span className="record-caption"><strong>{tracks[2].title}</strong><small>{tracks[2].artist}</small></span>
+          </div>
         </Artifact>
 
         {/* ===== MARVEL — upper-right ticket/comic ===== */}
@@ -800,24 +806,26 @@ export default function App() {
           <img src="/archive/assets/spiderman.webp" alt="Spider-Man reference" className="board-image-asset" />
         </Artifact>
 
+        <div className="tiny-pixel-position archive-entrance" style={{ ["--entrance-delay" as string]: "540ms" }}><TinyPixelCanvas /></div>
+
         {/* ===== Polaroids ===== */}
-        <Artifact {...layoutFor("pict-one", ARTIFACT_POSITIONS.north)} label="Open graduation photograph" className="cursor-camera" onOpen={() => { setPhotoIndex(0); setPanel("photo"); disturb("photo-graduation"); playMicroSound("camera") }}>
+        <Artifact {...layoutFor("pict-one", ARTIFACT_POSITIONS.north)} label="Graduation photograph">
           <Polaroid src={PHOTOS[0].src} caption={PHOTOS[0].caption} />
         </Artifact>
-        <Artifact {...layoutFor("pict-two", ARTIFACT_POSITIONS.onFoot)} label="Open kindergarten photograph" className="cursor-camera" onOpen={() => { setPhotoIndex(1); setPanel("photo"); disturb("photo-kindergarten"); playMicroSound("camera") }}>
+        <Artifact {...layoutFor("pict-two", ARTIFACT_POSITIONS.onFoot)} label="Kindergarten photograph">
           <Polaroid src={PHOTOS[1].src} caption={PHOTOS[1].caption} fit="contain" focus="center" />
         </Artifact>
-        <Artifact {...layoutFor("pict-four", ARTIFACT_POSITIONS.stillness)} label="Open mirror selfie" className="cursor-camera" onOpen={() => { setPhotoIndex(2); setPanel("photo"); disturb("photo-mirror-selfie"); playMicroSound("camera") }}>
+        <Artifact {...layoutFor("pict-four", ARTIFACT_POSITIONS.stillness)} label="Mirror selfie">
           <Polaroid src={PHOTOS[2].src} caption={PHOTOS[2].caption} />
         </Artifact>
 
         {/* ===== Photography contact sheet (lower-left) ===== */}
-        <Artifact {...layoutFor("pict-five", ARTIFACT_POSITIONS.fifth)} label="Open archive photograph" className="cursor-camera" onOpen={() => { setPhotoIndex(3); setPanel("photo"); disturb("photo-five"); playMicroSound("camera") }}>
+        <Artifact {...layoutFor("pict-five", ARTIFACT_POSITIONS.fifth)} label="Archive photograph">
           <Polaroid src={PHOTOS[3].src} caption={PHOTOS[3].caption} />
         </Artifact>
 
         {/* ===== Album and vinyl (lower-center) ===== */}
-        <Artifact {...layoutFor("mixtape", ARTIFACT_POSITIONS.cassette)} label="Mardy Bum · Arctic Monkeys" className="cursor-music" onOpen={() => void toggleAlbumPlayback()}>
+        <Artifact {...layoutFor("mixtape", ARTIFACT_POSITIONS.cassette)} label="Mardy Bum · Arctic Monkeys" className="cursor-music" onOpen={() => void toggleAlbumPlayback(0)}>
           <div className={`record-artifact ${activeTrackId === tracks[0].id ? "is-open" : ""} ${activeTrackId === tracks[0].id && audioPlaying ? "is-playing" : ""}`}>
             <div className="vinyl-record" aria-hidden="true"><span /></div>
             <div className="record-sleeve"><img src="/archive/assets/song-1.jpg" alt="Mardy Bum by Arctic Monkeys album cover" /></div>
@@ -830,32 +838,6 @@ export default function App() {
             <div className="vinyl-record" aria-hidden="true"><span /></div>
             <div className="record-sleeve"><img src="/archive/assets/song-2.jpg" alt="Good Riddance album cover" /></div>
             <span className="record-caption"><strong>{tracks[1].title}</strong><small>{tracks[1].artist}</small></span>
-          </div>
-        </Artifact>
-
-        {/* ===== Movie ticket (lower-right) ===== */}
-        <Artifact {...ARTIFACT_POSITIONS.cinema} label="Open cinema references" className="cursor-cinema" onOpen={() => { setCinemaOpen((value) => !value); disturb("cinema"); playMicroSound("projector") }}>
-          <div className="overflow-hidden rounded-sm bg-[#f4efe4]">
-            <div className="bg-[#16181d] px-3 py-2">
-              <p className="font-serif text-[13px] font-bold text-[#f2c318]">CINEMA</p>
-            </div>
-            <div className="px-3 py-2.5">
-              <p className="font-serif text-[13px] leading-tight text-[#16181d]">Late show, aisle seat</p>
-              <p className="mt-1 font-mono text-[9px] tracking-widest text-[#16181d]/60">20:45 · SCREEN 4 · ROW J</p>
-            </div>
-            <div className="border-t border-dashed border-[#16181d]/25 px-3 py-1">
-              <span className="font-mono text-[9px] tracking-[0.3em] text-[#16181d]/70">||| || |||| | ||</span>
-            </div>
-          </div>
-          {cinemaOpen && <div className="ticket-panel"><span>Now screening</span><strong>Films I keep thinking about</strong><p>01 · Oppenheimer<br />02 · Good Will Hunting<br />03 · Eternal Sunshine of the Spotless Mind</p></div>}
-        </Artifact>
-
-        {/* ===== Note paper "hey" (left) ===== */}
-        <Artifact {...ARTIFACT_POSITIONS.note}>
-          <div className="relative bg-[#e9dfc4] p-4" style={{ boxShadow: "0 8px 20px rgba(0,0,0,0.3)" }}>
-            <Pin color="#e23b34" className="left-1/2 top-2 -translate-x-1/2" />
-            <p className="font-serif text-3xl italic text-[#2e6be6]">hey.</p>
-            <p className="mt-1 font-mono text-[9px] text-[#5a5442]">drag the mat around →</p>
           </div>
         </Artifact>
 
@@ -874,21 +856,11 @@ export default function App() {
 
         {/* ===== Sticker cluster: tech identity ===== */}
         <Sticker id="figma" x={assetLayout.figma?.x ?? -400} y={assetLayout.figma?.y ?? -455} rotate={assetLayout.figma?.rotate ?? -6} imageSrc="/archive/assets/figma-sticker.jpg" label="figma" movable onClick={() => { discover("figma"); playMicroSound("ui") }} onDisturb={() => disturb("figma-drag")} />
-        <Sticker id="typescript" x={720} y={-245} rotate={-8} bg="#3178c6" text="TS" mono movable />
-        <Sticker id="next" x={650} y={-165} rotate={6} bg="#0a0a0a" text="▲ Next" movable />
         <Sticker id="react" x={-390} y={455} rotate={-6} bg="#20232a" text="⚛ React" color="#61dafb" movable />
-        <Sticker id="make" x={90} y={590} rotate={5} bg="#f2c318" text="M↓X" color="#16181d" />
-        <Sticker id="dot" x={680} y={300} rotate={-4} bg="#e23b34" text="●" color="#fff" />
 
         {/* ===== Playful archive interactions ===== */}
         <Artifact x={-1035} y={425} rotate={-3} z={36} width={190} label="Scratch card">
           <ScratchCard onDiscover={() => disturb("scratch-card")} onSound={() => playMicroSound("card")} />
-        </Artifact>
-        <Artifact x={1020} y={235} rotate={4} z={37} width={150} label="Don't peel">
-          <PeelNote onDiscover={() => disturb("peeled-note")} onSound={() => playMicroSound("mechanical")} />
-        </Artifact>
-        <Artifact x={-1020} y={-410} rotate={3} z={28} width={190} label="Dusty archive fragment">
-          <DustArtifact onDiscover={() => disturb("desktop-archaeology")} onSound={() => playMicroSound("camera")} />
         </Artifact>
 
         {/* ===== User-supplied archive assets ===== */}
@@ -896,41 +868,11 @@ export default function App() {
           const layout = assetLayout[asset.id] ?? asset
           const isMovie = asset.id.startsWith("movie") || asset.id === "letterboxd"
           const isBook = asset.id.startsWith("book")
-          return <Artifact key={asset.id} x={layout.x} y={layout.y} rotate={layout.rotate} z={30} width={asset.width} label={asset.caption} className={isMovie ? "cursor-cinema" : ""} onOpen={() => { disturb(asset.id); if (isMovie) playMicroSound("projector") }}>
-            {isBook ? <div className="book-artifact"><img src={asset.src} alt={asset.alt} loading="lazy" decoding="async" className="board-image-asset" /><span>{asset.caption}</span></div> : <img src={asset.src} alt={asset.alt} loading="lazy" decoding="async" className="board-image-asset" />}
+          return <Artifact key={asset.id} x={layout.x} y={layout.y} rotate={layout.rotate} z={30} width={asset.width} label={asset.caption} className={`${isMovie ? "cursor-cinema" : ""} ${isBook ? "book-artifact-group" : ""}`} onOpen={() => { disturb(asset.id); if (isMovie) playMicroSound("projector") }}>
+            {isBook ? <div className="book-artifact-scene"><div className="book-artifact"><span className="book-artifact-back" aria-hidden="true" /><span className="book-artifact-pages" aria-hidden="true" /><span className="book-artifact-front"><img src={asset.src} alt={asset.alt} loading="lazy" decoding="async" /></span></div></div> : <img src={asset.src} alt={asset.alt} loading="lazy" decoding="async" className="board-image-asset" />}
           </Artifact>
         })}
-
-        {/* ===== Books (lower-left cluster) ===== */}
-        <Artifact {...ARTIFACT_POSITIONS.rams} className="hidden">
-          <div className="h-28 w-full rounded-sm bg-[#e05a17] px-2 py-3 ring-1 ring-black/20">
-            <p className="font-serif text-[12px] font-bold leading-tight text-white">dieter<br />rams</p>
-            <p className="mt-8 font-mono text-[7px] tracking-widest text-white/80">LESS · BUT BETTER</p>
-          </div>
-        </Artifact>
-        <Artifact {...ARTIFACT_POSITIONS.typeBook} className="hidden">
-          <div className="h-24 w-full rounded-sm bg-[#111] px-2 py-3 ring-1 ring-white/10">
-            <p className="font-serif text-[11px] font-bold leading-tight text-[#f2c318]">The Shape<br />of Type</p>
-          </div>
-        </Artifact>
-
-        {/* ===== Terminal artifact (far right) ===== */}
-        <Artifact {...ARTIFACT_POSITIONS.terminal}>
-          <div className="overflow-hidden rounded-md bg-[#0b0e12] ring-1 ring-white/10">
-            <div className="flex gap-1 bg-[#15181e] px-2 py-1.5">
-              <span className="h-2 w-2 rounded-full bg-[#e23b34]" />
-              <span className="h-2 w-2 rounded-full bg-[#f2c318]" />
-              <span className="h-2 w-2 rounded-full bg-[#3fb27f]" />
-            </div>
-            <pre className="px-2.5 py-2 font-mono text-[8px] leading-relaxed text-[#7fd18f]">$ whoami
-{"> "}andre
-$ ls interests/
-pokemon marvel
-film music type
-$ _</pre>
-          </div>
-        </Artifact>
-        {curiosityFound && <Artifact {...ARTIFACT_POSITIONS.hidden}>
+{curiosityFound && <Artifact {...ARTIFACT_POSITIONS.hidden}>
           <aside className="hidden-artifact"><span>+1 hidden artifact</span><strong>Curiosity &gt; category</strong><p>Good ideas rarely stay inside one folder.</p></aside>
         </Artifact>}
       </div>
@@ -944,9 +886,8 @@ $ _</pre>
       >
         <div className="flex items-center gap-1 rounded-full bg-[#0b1220]/85 px-2 py-1.5 shadow-2xl ring-1 ring-white/10 backdrop-blur-md">
           {[
-            ["Home", "⌂", !galleryOpen && !aboutOpen && !markOpen],
+            ["Home", "⌂", !galleryOpen && !aboutOpen],
             ["About", "◈", aboutOpen],
-            ["Make a Mark", "✎", markOpen],
             ["Photos", "▣", galleryOpen],
           ].map(([label, icon, active]) => (
             <button
@@ -957,10 +898,9 @@ $ _</pre>
               aria-label={label as string}
               aria-current={active ? "page" : undefined}
               onClick={() => {
-                if (label === "Home") { closeGallery(); closeAbout(); closeMark(); setPanel(null); resetHomePosition() }
-                else if (label === "About") { closeGallery(); closeMark(); setAboutOpen(true) }
-                else if (label === "Make a Mark") { closeGallery(); closeAbout(); setMarkOpen(true) }
-                else if (label === "Photos") { closeAbout(); closeMark(); setGalleryOpen(true) }
+                if (label === "Home") { closeGallery(); closeAbout(); setPanel(null); resetHomePosition() }
+                else if (label === "About") { closeGallery(); setAboutOpen(true) }
+                else if (label === "Photos") { closeAbout(); setGalleryOpen(true) }
               }}
               className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[11px] transition ${
                 active
@@ -1018,16 +958,16 @@ $ _</pre>
       </nav>
 
       {/* corner meta */}
-      <div className="pointer-events-none fixed left-5 top-4 z-[90] font-mono text-[10px] uppercase tracking-[0.2em] text-white/55">
+      {!galleryOpen && !aboutOpen && <div className="pointer-events-none fixed left-5 top-4 z-[90] font-mono text-[10px] uppercase tracking-[0.2em] text-white/55">
         Andre&apos;s Archive
-      </div>
-      <div className="curiosity-counter" role="status" aria-live="polite">
+      </div>}
+      {!galleryOpen && !aboutOpen && <div className="curiosity-counter" role="status" aria-live="polite">
         {disturbed.length} / {BOARD_ARTIFACT_COUNT} artifacts disturbed
-      </div>
-      <div className="coordinate-readout" aria-label="Board position and local time">
+      </div>}
+      {!galleryOpen && !aboutOpen && <div className="coordinate-readout" aria-label="Board position and local time">
         <span ref={xReadoutRef}>x 0</span><span ref={yReadoutRef}>y 0</span>
         <LocalClock />
-      </div>
+      </div>}
 
       {/* ===== Popovers ===== */}
       {false && (
@@ -1050,10 +990,9 @@ $ _</pre>
           </p>
         </Popover>
       )}
-      {panel === "photo" && <PhotoViewer index={photoIndex} onChange={setPhotoIndex} onClose={() => setPanel(null)} />}
-      {galleryOpen && <PhotoGallery onOpen={(index) => { setPhotoIndex(index); setPanel("photo") }} onClose={closeGallery} />}
-      {aboutOpen && <AboutSheet onClose={closeAbout} />}
-      {markOpen && <MarkStudio onClose={closeMark} />}
+      {galleryOpen && galleryPhotoOpen && <GalleryCarousel index={photoIndex} onChange={setPhotoIndex} onClose={closePhoto} lightMode={lightMode} />}
+      {galleryOpen && <PhotoGallery onOpen={(index) => { setPhotoIndex(index); setGalleryPhotoOpen(true) }} onClose={closeGallery} lightMode={lightMode} />}
+      {aboutOpen && <AboutSheet onClose={closeAbout} lightMode={lightMode} />}
       {albumSelected && <div className="album-toast" role="status" aria-live="polite" onPointerDown={(event) => event.stopPropagation()}>
         <span className={audioPlaying ? "album-toast-dot is-playing" : "album-toast-dot"} aria-hidden="true" />
         <div><strong>{audioPlaying ? "Now playing" : "Mixtape paused"}</strong><p>{nowPlaying || `${track.title} — ${track.artist}`}</p></div>
@@ -1122,7 +1061,7 @@ function Sticker({
   }
 
   return (
-    <div className="absolute transition-[left,top] duration-500 ease-out" style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)`, transform: "translate(-50%, -50%)", zIndex: moving ? 60 : 20 }}>
+    <div className="archive-entrance absolute transition-[left,top] duration-500 ease-out" style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)`, transform: "translate(-50%, -50%)", zIndex: moving ? 60 : 20, ["--entrance-delay" as string]: `${120 + (Math.abs(Math.round(x + y)) % 8) * 70}ms` }}>
       <div
         role={onClick ? "button" : undefined}
         tabIndex={onClick ? 0 : undefined}

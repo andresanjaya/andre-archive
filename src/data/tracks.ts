@@ -22,4 +22,11 @@ export const tracks: MixtapeTrack[] = [
     src: '/archive/audio/song-2.mp3',
     cover: '/archive/assets/song-2.jpg',
   },
+  {
+    id: 'song-three',
+    title: 'Gemilang',
+    artist: 'Perunggu',
+    src: '/archive/audio/song-3.mp3',
+    cover: '/archive/assets/song-3.jpg',
+  },
 ];
