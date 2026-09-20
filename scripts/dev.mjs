@@ -27,5 +27,13 @@ const watcher = watch(source, () => {
   clearTimeout(timer);
   timer = setTimeout(sync, 500);
 });
+const puzzleScript = path.join(root, 'scripts', 'sync-puzzle.mjs');
+const puzzleInitial = spawnSync(process.execPath, [puzzleScript], { cwd: root, stdio: 'inherit' });
+if (puzzleInitial.status !== 0) process.exit(puzzleInitial.status ?? 1);
+let puzzleTimer;
+const puzzleWatcher = watch(path.join(root, 'assets/puzzle'), () => {
+  clearTimeout(puzzleTimer);
+  puzzleTimer = setTimeout(() => spawnSync(process.execPath, [puzzleScript], { cwd: root, stdio: 'inherit' }), 500);
+});
 const next = spawn(process.execPath, [nextCli, 'dev', ...process.argv.slice(2)], { cwd: root, stdio: 'inherit' });
-next.on('exit', (code) => { clearTimeout(timer); watcher.close(); process.exit(code ?? 0); });
+next.on('exit', (code) => { clearTimeout(timer); clearTimeout(puzzleTimer); watcher.close(); puzzleWatcher.close(); process.exit(code ?? 0); });

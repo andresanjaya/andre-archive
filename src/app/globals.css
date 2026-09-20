@@ -76,7 +76,7 @@ input:focus-visible {
 .polaroid-meta { position: absolute; right: 10px; bottom: 9px; opacity: 0; color: rgba(42,42,42,.55); font: 6px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; transition: opacity 180ms ease; }
 .group:hover .polaroid-meta, .group:focus-within .polaroid-meta { opacity: 1; }
 
-.identity-card { width: 620px; overflow: hidden; border-radius: 16px; color: #f6f3ed; background: #0d0f10; box-shadow: 0 42px 88px rgba(2,20,14,.62); border: 1px solid rgba(255,255,255,.1); }
+.identity-card { width: 500px; overflow: hidden; border-radius: 16px; color: #f6f3ed; background: #0d0f10; box-shadow: 0 42px 88px rgba(2,20,14,.62); border: 1px solid rgba(255,255,255,.1); }
 .identity-card.is-light { color: #17191c; background: #f4efe4; border-color: rgba(22,24,29,.16); box-shadow: 0 42px 88px rgba(2,20,14,.34); }
 .identity-card.is-light .identity-header,
 .identity-card.is-light .identity-about,
@@ -121,7 +121,7 @@ input:focus-visible {
 .collectible-face { position: absolute; inset: 0; backface-visibility: hidden; }
 .collectible-back { transform: rotateY(180deg); }
 
-.pokemon-asset { display: block; width: 132px; height: 132px; object-fit: contain; filter: drop-shadow(0 10px 12px rgba(2,20,14,.26)); }
+.pokemon-asset { display: block; width: 156px; height: 156px; object-fit: contain; filter: drop-shadow(0 10px 12px rgba(2,20,14,.26)); }
 .marvel-logo-wrap { background: transparent; }
 .marvel-asset { display: block; width: 100%; height: auto; }
 .bali-stamp-wrap { background: transparent !important; filter: none !important; -webkit-mask-image: none !important; -webkit-mask-size: auto !important; }
@@ -142,29 +142,28 @@ input:focus-visible {
 .cassette.is-playing .cassette-reel { animation: cassette-spin 2.4s linear infinite; }
 @keyframes cassette-spin { to { transform: rotate(360deg); } }
 
-.record-artifact { position: relative; width: 168px; padding-bottom: 22px; }
-.record-sleeve { position: relative; z-index: 2; width: 148px; height: 148px; overflow: hidden; background: #171717; box-shadow: 0 18px 30px rgba(3,22,16,.55); }
+.record-artifact { position: relative; width: 200px; padding-bottom: 22px; }
+.record-sleeve { position: relative; z-index: 2; width: 176px; height: 176px; overflow: hidden; border-radius: 8px; background: #171717; box-shadow: 0 18px 30px rgba(3,22,16,.55); }
 .record-sleeve img { width: 100%; height: 100%; object-fit: cover; }
-.vinyl-record { position: absolute; z-index: 1; top: 7px; left: 18px; width: 134px; height: 134px; border-radius: 50%; background: repeating-radial-gradient(circle at center, #151515 0 4px, #202020 5px 7px, #101010 8px 10px); box-shadow: 0 15px 26px rgba(2,17,12,.5); transition: transform 360ms cubic-bezier(.2,.75,.2,1); }
+.vinyl-record { position: absolute; z-index: 1; top: 9px; left: 20px; width: 158px; height: 158px; border-radius: 50%; background: repeating-radial-gradient(circle at center, #151515 0 4px, #202020 5px 7px, #101010 8px 10px); box-shadow: 0 15px 26px rgba(2,17,12,.5); transition: transform 360ms cubic-bezier(.2,.75,.2,1); }
 .vinyl-record::before, .player-vinyl::before { content: ""; position: absolute; inset: 40%; border-radius: 50%; background: #d44231; border: 2px solid #e5c85a; }
 .vinyl-record span, .player-vinyl span { position: absolute; z-index: 2; left: 50%; top: 50%; width: 7px; height: 7px; border-radius: 50%; background: #ddd4bd; transform: translate(-50%,-50%); }
-.record-artifact.is-open .vinyl-record { transform: translateX(78px) rotate(22deg); }
+.record-artifact.is-open .vinyl-record { transform: translateX(92px) rotate(22deg); }
 .record-artifact.is-playing .vinyl-record { animation: vinyl-spin 2.8s linear infinite; }
-.record-caption { position: absolute; bottom: 0; left: 0; display: grid; gap: 3px; color: rgba(255,255,255,.82); font: 7px/1 var(--font-mono); letter-spacing: .11em; text-transform: uppercase; }
-.record-caption strong { color: #f4efe4; font: 600 10px/1 var(--font-sans); letter-spacing: 0; text-transform: none; }
-.record-caption small { color: rgba(255,255,255,.56); font: inherit; }
-.book-artifact-group { perspective: 1100px; perspective-origin: 50% 45%; }
-.book-artifact-scene { position: relative; display: grid; justify-items: center; gap: 10px; width: 100%; }
-.book-artifact-scene::after { content: ""; position: absolute; width: 170px; max-width: 95%; height: 22px; bottom: 42px; left: 50%; border-radius: 50%; background: rgba(0,0,0,.46); filter: blur(18px); z-index: -1; pointer-events: none; transition: transform .3s ease, opacity .3s ease; transform: translateX(-50%); }
-.book-artifact-scene:has(.book-artifact:hover)::after, .book-artifact-scene:has(.book-artifact:focus-visible)::after { transform: translateX(calc(-50% - 6px)) scaleX(1.13); opacity: .85; }
-.book-artifact { --book-w: 100%; --half-cover: 12px; --page-depth: 24px; --page-inset: 4px; position: relative; width: var(--book-w); aspect-ratio: 168 / 249; isolation: isolate; transform-style: preserve-3d; transform-origin: left center; transform: rotateY(0deg); transition: transform 300ms ease-out; animation: book-init 1s ease 1; will-change: transform; }
-.book-artifact:hover, .group:focus-within .book-artifact { transform: rotateY(-20deg) scale(1.03) translateX(-2px); }
-.group:focus-within .book-artifact-front { outline: 2px solid #a9beff; outline-offset: 5px; }
-.book-artifact-back { position: absolute; top: 0; left: var(--half-cover); width: calc(100% - var(--half-cover)); height: 100%; z-index: 0; border-radius: 0 2px 2px 0; background: #253c94; box-shadow: 0 3px 12px rgba(0,0,0,.25); transform: translateZ(calc(-1 * var(--half-cover))); }
-.book-artifact-pages { position: absolute; top: 5px; left: calc(100% - var(--page-inset)); z-index: 1; margin-left: calc(var(--page-depth) / -2); width: var(--page-depth); height: calc(100% - 10px); border-radius: 1px 2px 2px 1px; background: linear-gradient(90deg, rgba(53,63,83,.12), transparent 16%, rgba(255,255,255,.9) 48%, rgba(125,133,150,.15) 100%), repeating-linear-gradient(to bottom, #fff 0 1.25px, #d6d9df 1.25px 2.5px); box-shadow: inset -4px 0 4px rgba(53,58,73,.09), 1px 0 1px rgba(255,255,255,.7); transform: rotateY(90deg); transform-origin: center center; }
-.book-artifact-front { position: absolute; inset: 0; z-index: 2; display: block; overflow: hidden; border-radius: 4px 2px 2px 4px; background: #123ca7; box-shadow: 0 1px 2px rgba(0,0,0,.13), 0 5px 11px -4px rgba(0,0,0,.24), 0 19px 34px -11px rgba(0,0,0,.14); transform: translateZ(var(--half-cover)); backface-visibility: hidden; }
-.book-artifact-front::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 9px; z-index: 1; background: linear-gradient(to right, rgba(0,0,0,.16), rgba(255,255,255,.055) 45%, transparent); pointer-events: none; }
-.book-artifact-front img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; user-select: none; }
+/* Perspective belongs on the direct parent; the rotating book must not
+   use isolation, opacity, filters or clipping (these flatten its faces). */
+.book-artifact-scene { position: relative; width: 100%; perspective: 600px; perspective-origin: 50% 45%; }
+.book-artifact { --half-cover: 15px; --page-depth: calc(var(--half-cover) * 2); position: relative; width: 100%; aspect-ratio: 168 / 249; transform-style: preserve-3d; transform-origin: left center; transform: rotateY(0deg); transition: transform 300ms ease-out; animation: book-init 1s ease 1; }
+.book-artifact-scene:has(img[src$="book-1.jpg"]) { --book-color: #d6af24; }
+.book-artifact-scene:has(img[src$="book-2.jpg"]) { --book-color: #cc922c; }
+.book-artifact-scene:has(img[src$="book-3.jpg"]) { --book-color: #e7e2cd; }
+.book-artifact-group:hover .book-artifact, .book-artifact-group:focus .book-artifact { transform: rotateY(-20deg) scale(1.03) translateX(-2px); }
+.book-artifact-group:focus-visible .book-artifact-front { outline: 2px solid #a9beff; outline-offset: 5px; }
+.book-artifact-back { position: absolute; inset: 0; border-radius: 4px 2px 2px 4px; background: var(--book-color); transform: translateZ(calc(-1 * var(--half-cover))); box-shadow: 0 3px 12px #0004; }
+.book-artifact-pages { position: absolute; top: 3px; left: calc(100% - 2px); margin-left: calc(var(--page-depth) / -2); width: var(--page-depth); height: calc(100% - 6px); transform: rotateY(90deg); transform-origin: center; backface-visibility: visible; background: linear-gradient(90deg, #353f531f, transparent 16%, #ffffffe6 48%, #7d859626 100%), repeating-linear-gradient(to bottom, #fff 0px, #fff 1.25px, #e0e3e8 1.35px, #f5f6f8 1.9px, #fff 2.6px, #e6e8ed 3px); box-shadow: inset 3px 0 3px #555a652b, inset -4px 0 4px #353a4917; }
+.book-artifact-front { position: absolute; inset: 0; overflow: hidden; border-radius: 4px 2px 2px 4px; background: var(--book-color); transform: translateZ(var(--half-cover)); backface-visibility: hidden; box-shadow: 0 1px 2px #0002, 0 5px 11px -4px #0004, 0 19px 34px -11px #0002; }
+.book-artifact-front::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 9px; background: linear-gradient(to right, #00000029, #ffffff0e 45%, transparent); pointer-events: none; }
+.book-artifact-front img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; user-select: none; }
 @keyframes book-init { from { transform: rotateY(-30deg); } to { transform: rotateY(0deg); } }
 @media (prefers-reduced-motion: reduce) { .book-artifact, .book-artifact-scene::after { transition: none; animation: none; } }
 
@@ -176,7 +175,7 @@ input:focus-visible {
 .board-image-artifact { margin: 0; padding: 7px 7px 10px; color: #24231f; background: #f2ede1; box-shadow: 0 17px 28px rgba(3,25,17,.45); }
 .board-image-artifact img { display: block; width: 100%; max-height: 174px; object-fit: cover; }
 .board-image-artifact figcaption { margin-top: 7px; overflow: hidden; font: italic 10px/1 var(--font-serif); text-overflow: ellipsis; white-space: nowrap; }
-.board-image-asset { display: block; width: 100%; max-height: 184px; object-fit: contain; border-radius: 7px; }
+.board-image-asset { display: block; width: 100%; max-height: 220px; object-fit: contain; border-radius: 7px; }
 .board-image-letterboxd { padding: 5px; border-radius: 18px; background: transparent; box-shadow: none; }
 .board-image-letterboxd img { border-radius: 17px; }
 .board-image-letterboxd figcaption { color: white; text-align: center; }
@@ -410,3 +409,46 @@ input:focus-visible {
 .tiny-pixel-colors button[aria-pressed="true"] { outline: 2px solid #284b3c; outline-offset: 2px; }
 .tiny-pixel button:focus-visible, .tiny-pixel canvas:focus-visible { outline: 2px solid #e4ab3e; outline-offset: 2px; }
 @media (max-width: 767px) { .tiny-pixel.is-expanded { width: 320px; } .tiny-pixel.is-expanded canvas { width: 260px; } }
+
+/* Local picture puzzle: independent from spatial-board gestures. */
+.picture-puzzle { position: fixed; inset: 0; z-index: 86; overflow: auto; overscroll-behavior: contain; background: #101414; color: #f3efe4; user-select: none; }
+.picture-puzzle.is-light { background: #eeeae1; color: #202925; }
+.puzzle-content { display: grid; grid-template-columns: minmax(0, 1fr) 280px; align-items: center; gap: clamp(24px, 5vw, 72px); width: min(100% - 48px, 1160px); min-height: 100svh; margin: 0 auto; padding: 24px 0 88px; }
+.puzzle-sidebar { display: grid; align-content: center; gap: 22px; min-width: 0; }
+.picture-puzzle button { color: inherit; font: 12px monospace; cursor: pointer; }
+.puzzle-controls button { border: 1px solid currentColor; border-radius: 7px; padding: 10px 12px; background: transparent; min-height: 42px; }
+.puzzle-controls { display: flex; flex-wrap: wrap; gap: 8px; }
+.puzzle-difficulty button { flex: 1; }
+.puzzle-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.puzzle-controls button[aria-pressed="true"] { color: #102019; background: #e9cb71; border-color: #e9cb71; }
+.picture-puzzle button:focus-visible { outline: 3px solid #d49b36; outline-offset: 3px; }
+.picture-puzzle button:disabled { cursor: default; }
+.puzzle-controls button:disabled { opacity: .45; }
+.puzzle-stats { display: grid; gap: 8px; margin: 0; font: 12px monospace; }
+.puzzle-stage { position: relative; margin: 0 auto; border: 5px solid #ddd8c9; background: #28322c; box-shadow: 0 12px 35px #0003; border-radius: 5px; }
+.puzzle-stage > p { padding: 24px; color: #fff; }
+.puzzle-grid { display: grid; grid-auto-rows: 1fr; width: 100%; height: 100%; }
+.puzzle-grid button { display: block; min-width: 0; min-height: 0; padding: 0; border: 0; border-radius: 0; touch-action: none; background-repeat: no-repeat; box-shadow: inset 0 0 0 1px #fff5; transition: box-shadow 140ms ease, opacity 140ms ease; }
+.puzzle-grid button.is-selected, .puzzle-grid button.is-target { box-shadow: inset 0 0 0 4px #f4cf62; z-index: 1; }
+.puzzle-grid button.is-dragged { opacity: .6; cursor: grabbing; }
+.puzzle-grid.is-solved button { box-shadow: none; }
+.puzzle-preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.puzzle-hint { font-size: 12px; line-height: 1.6; margin: 0; opacity: .75; }
+.puzzle-result { margin-top: 2px; }
+.puzzle-result h2 { font: 26px Georgia, serif; margin-bottom: 8px; }
+.puzzle-result p { margin-bottom: 16px; font: 12px monospace; }
+@media (max-width: 700px) {
+  .puzzle-content { grid-template-columns: 1fr; justify-items: center; align-content: center; gap: 16px; width: min(100% - 32px, 520px); padding: 14px 0 84px; }
+  .puzzle-stage { width: min(100%, var(--stage-width-mobile)) !important; }
+  .puzzle-sidebar { width: 100%; gap: 12px; }
+  .puzzle-stats { display: flex; justify-content: space-between; gap: 12px; }
+  .puzzle-hint { font-size: 11px; }
+}
+@media (max-height: 560px) and (min-width: 701px) { .puzzle-content { padding-bottom: 68px; } .puzzle-sidebar { gap: 12px; } .puzzle-stage { max-height: 68svh; } }
+@media (prefers-reduced-motion: reduce) { .puzzle-grid button { transition: none; } }
+
+.puzzle-drag-preview { position: fixed; z-index: 100; pointer-events: none; transform: translate(-50%, -50%) scale(1.06); box-shadow: 0 8px 25px #0008; outline: 2px solid #f4cf62; }
+@media (hover: hover) { .puzzle-grid:not(.is-solved) button:hover:not(:disabled) { box-shadow: inset 0 0 0 3px #f4cf62; } }
+.puzzle-grid.is-solved { animation: puzzle-complete 400ms ease-out; }
+@keyframes puzzle-complete { from { filter: brightness(1.15); } to { filter: brightness(1); } }
+@media (prefers-reduced-motion: reduce) { .puzzle-grid.is-solved { animation: none; } }

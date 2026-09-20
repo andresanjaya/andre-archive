@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { tracks } from "../../src/data/tracks"
 import { ScratchCard } from "../../src/components/archive/PlayfulArtifacts"
-import TinyPixelCanvas from "../../src/components/archive/TinyPixelCanvas"
+import dynamic from "next/dynamic"
+const PicturePuzzle = dynamic(() => import("../../src/components/archive/PicturePuzzle"), { ssr: false })
 import syncedPhotos from "../../src/data/photo-manifest.json"
 
 /* ------------------------------------------------------------------ *\
@@ -13,50 +14,79 @@ import syncedPhotos from "../../src/data/photo-manifest.json"
 const PHOTOS = [
   { src: "/archive/assets/pict-1.jpg", title: "Graduation", year: "2026", caption: "graduation" },
   { src: "/archive/assets/pict-2.png", title: "Kindergarten", year: "", caption: "kindergarten" },
-  { src: "/archive/assets/pict-4.jpeg", title: "Personal reference", year: "", caption: "personal reference" },
-  { src: "/archive/assets/pict-5.jpeg", title: "Pikachu & Andre", year: "", caption: "pikachu & andre" },
+  { src: "/archive/assets/pict-4.jpeg", title: "Personal Reference", year: "", caption: "personal reference" },
+  { src: "/archive/assets/profile2.png", title: "Andre Sanjaya", year: "", caption: "andre sanjaya" },
 ]
 const GALLERY_PHOTOS = syncedPhotos
 
 const BOARD_ASSETS = [
-  { id: "book", src: "/archive/assets/book-1.jpg", alt: "The Design of Everyday Things book cover", caption: "The Design of Everyday Things", x: -875, y: -230, rotate: -7, width: 90 },
-  { id: "book-two", src: "/archive/assets/book-2.jpg", alt: "Almost Adulting book cover", caption: "Almost Adulting", x: 875, y: -400, rotate: 8, width: 88 },
-  { id: "book-three", src: "/archive/assets/book-3.jpg", alt: "Atomic Habits book cover", caption: "Atomic Habits", x: -1100, y: 60, rotate: -4, width: 86 },
-  { id: "letterboxd", src: "/archive/assets/letterboxd.png", alt: "Letterboxd logo", caption: "Letterboxd", x: 720, y: -475, rotate: 5, width: 76 },
-  { id: "movie-one", src: "/archive/assets/movie-1.jpg", alt: "Oppenheimer poster", caption: "Oppenheimer", x: 1020, y: -105, rotate: 6, width: 112 },
-  { id: "movie-two", src: "/archive/assets/movie-2.jpg", alt: "Good Will Hunting poster", caption: "Good Will Hunting", x: -820, y: 145, rotate: -5, width: 108 },
-  { id: "movie-three", src: "/archive/assets/movie-3.jpg", alt: "Eternal Sunshine of the Spotless Mind poster", caption: "Eternal Sunshine", x: 875, y: 400, rotate: 4, width: 114 },
-  { id: "movie-four", src: "/archive/assets/movie-4.jpg", alt: "Forrest Gump", caption: "Forrest Gump", x: 1060, y: -375, rotate: -4, width: 110 },
-  { id: "archive-logo", src: "/archive/assets/logo.svg", alt: "Andre Archive logo", caption: "Archive logo", x: -1060, y: -135, rotate: 5, width: 104 },
+  { id: "book", src: "/archive/assets/book-1.jpg", alt: "The Design of Everyday Things book cover", caption: "The Design of Everyday Things", width: 108 },
+  { id: "book-two", src: "/archive/assets/book-2.jpg", alt: "Almost Adulting book cover", caption: "Almost Adulting", width: 106 },
+  { id: "book-three", src: "/archive/assets/book-3.jpg", alt: "Atomic Habits book cover", caption: "Atomic Habits", width: 103 },
+  { id: "letterboxd", src: "/archive/assets/letterboxd.png", alt: "Letterboxd logo", caption: "Letterboxd", width: 92 },
+  { id: "movie-one", src: "/archive/assets/movie-1.jpg", alt: "Oppenheimer poster", caption: "Oppenheimer", width: 134 },
+  { id: "movie-two", src: "/archive/assets/movie-2.jpg", alt: "Good Will Hunting poster", caption: "Good Will Hunting", width: 130 },
+  { id: "movie-three", src: "/archive/assets/movie-3.jpg", alt: "Eternal Sunshine of the Spotless Mind poster", caption: "Eternal Sunshine", width: 137 },
+  { id: "movie-four", src: "/archive/assets/movie-4.jpg", alt: "Forrest Gump", caption: "Forrest Gump", width: 132 },
+  { id: "series-one", src: "/archive/assets/series-1.jpg", alt: "Series reference one", caption: "Series reference one", width: 128 },
+  { id: "series-two", src: "/archive/assets/series-2.jpg", alt: "Series reference two", caption: "Series reference two", width: 128 },
+  { id: "series-three", src: "/archive/assets/series-3.jpg", alt: "Series reference three", caption: "Series reference three", width: 128 },
+  { id: "archive-logo", src: "/archive/assets/logo.svg", alt: "Andre Archive logo", caption: "Archive logo", width: 125 },
 ] as const
 
+// Single source of truth for the default board composition.
+// Change x, y, or rotate here to manually arrange any named artifact.
 const ARTIFACT_POSITIONS = {
-  pokemon: { x: -700, y: -350, rotate: -7, z: 40, width: 132 },
-  marvel: { x: 555, y: -315, rotate: 5, z: 30, width: 104 },
-  spiderman: { x: 850, y: 100, rotate: -5, z: 40, width: 110 },
-  north: { x: -580, y: -150, rotate: 10, z: 30 },
-  onFoot: { x: -500, y: 200, rotate: -10, z: 30 },
-  stillness: { x: 550, y: -110, rotate: -15, z: 30 },
-  cassette: { x: -700, y: 445, rotate: -3, z: 40, width: 168 },
-  note: { x: -880, y: -80, rotate: -3, z: 20, width: 128 },
-  bali: { x: -1000, y: -445, rotate: 4, z: 30, width: 120 },
-  fifth: { x: 550, y: 250, rotate: 12, z: 30 },
-  hidden: { x: -845, y: 430, rotate: -4, z: 30, width: 190 },
+  bookDesignEverydayThings: { x: -875, y: -150, rotate: 15, z: 30 },
+  bookAlmostAdulting: { x: 875, y: -400, rotate: 8, z: 30 },
+  bookAtomicHabits: { x: -1100, y: 60, rotate: -4, z: 30 },
+  letterboxdLogo: { x: 680, y: -300, rotate: 5, z: 30 },
+  filmOppenheimer: { x: 300, y: 570, rotate: 4, z: 30 },
+  filmGoodWillHunting: { x: -820, y: 145, rotate: -15, z: 30 },
+  filmEternalSunshine: { x: 800, y: -105, rotate: -5, z: 30 },
+  filmForrestGump: { x:-550, y: 700, rotate: -4, z: 30 },
+  seriesOne: { x: -300, y: -560, rotate: -20, z: 30 },
+  seriesTwo: { x: 50, y: 600, rotate: -7, z: 30 },
+  seriesThree: { x: 240, y: -560, rotate: 15, z: 30 },
+  archiveLogo: { x: -1060, y: -135, rotate: 5, z: 30 },
+  pokemonLogo: { x: -720, y: -320, rotate: -7, z: 40, width: 156 },
+  pokemonCard: { x: -700, y: -520, rotate: 5, z: 40, width: 150 },
+  marvelLogo: { x: 400, y: -400, rotate: 5, z: 30, width: 125 },
+  spiderManReference: { x: 850, y: 100, rotate: -5, z: 40, width: 132 },
+  photoGraduation: { x: -480, y: -150, rotate: 10, z: 30 },
+  photoKindergarten: { x: -480, y: 220, rotate: -10, z: 30 },
+  photoPersonalReference: { x: 470, y: -150, rotate: -15, z: 30 },
+  albumMardyBum: { x: -720, y: 470, rotate: 15, z: 40, width: 200 },
+  stampBali: { x: -1000, y: -445, rotate: 4, z: 30, width: 144 },
+  photoPikachu: { x: 480, y: 250, rotate: 12, z: 30 },
+  albumGoodRiddance: { x: -20, y: -560, rotate: 20, z: 40, width: 200 },
+  albumGemilang: { x: 800, y: 300, rotate: -10, z: 40, width: 200 },
+  albumEarrings: { x: -250, y: 600, rotate: -4, z: 40, width: 200 },
+  stickerFigma: { x: -450, y: -380, rotate: -6, z: 20 },
+  scratchCard: { x: -1035, y: 425, rotate: -3, z: 36, width: 220 },
+  curiositySecret: { x: -845, y: 430, rotate: -4, z: 30, width: 190 },
+} as const
+
+const BOARD_ASSET_POSITION_KEYS = {
+  book: "bookDesignEverydayThings", "book-two": "bookAlmostAdulting", "book-three": "bookAtomicHabits", letterboxd: "letterboxdLogo",
+  "movie-one": "filmOppenheimer", "movie-two": "filmGoodWillHunting", "movie-three": "filmEternalSunshine", "movie-four": "filmForrestGump", "series-one": "seriesOne", "series-two": "seriesTwo", "series-three": "seriesThree", "archive-logo": "archiveLogo",
 } as const
 
 const RANDOMIZABLE_ASSETS = [
-  ...BOARD_ASSETS.map(({ id, x, y, rotate }) => ({ id, x, y, rotate })),
-  { id: "pokemon", ...ARTIFACT_POSITIONS.pokemon },
-  { id: "marvel", ...ARTIFACT_POSITIONS.marvel },
-  { id: "pict-one", ...ARTIFACT_POSITIONS.north },
-  { id: "pict-two", ...ARTIFACT_POSITIONS.onFoot },
-  { id: "pict-four", ...ARTIFACT_POSITIONS.stillness },
-  { id: "pict-five", ...ARTIFACT_POSITIONS.fifth },
-  { id: "mixtape", ...ARTIFACT_POSITIONS.cassette },
-  { id: "song-two", x: 1040, y: 555, rotate: -5 },
-  { id: "song-three", x: 650, y: 650, rotate: 4 },
-  { id: "bali-stamp", ...ARTIFACT_POSITIONS.bali },
-  { id: "figma", x: -500, y: -450, rotate: -6 },
+  ...BOARD_ASSETS.map(({ id }) => ({ id, ...ARTIFACT_POSITIONS[BOARD_ASSET_POSITION_KEYS[id]] })),
+  { id: "pokemon", ...ARTIFACT_POSITIONS.pokemonLogo },
+  { id: "marvel", ...ARTIFACT_POSITIONS.marvelLogo },
+  { id: "pokemon-card", ...ARTIFACT_POSITIONS.pokemonCard },
+  { id: "pict-one", ...ARTIFACT_POSITIONS.photoGraduation },
+  { id: "pict-two", ...ARTIFACT_POSITIONS.photoKindergarten },
+  { id: "pict-four", ...ARTIFACT_POSITIONS.photoPersonalReference },
+  { id: "pict-five", ...ARTIFACT_POSITIONS.photoPikachu },
+  { id: "mixtape", ...ARTIFACT_POSITIONS.albumMardyBum },
+  { id: "song-two", ...ARTIFACT_POSITIONS.albumGoodRiddance },
+  { id: "song-three", ...ARTIFACT_POSITIONS.albumGemilang },
+  { id: "song-four", ...ARTIFACT_POSITIONS.albumEarrings },
+  { id: "bali-stamp", ...ARTIFACT_POSITIONS.stampBali },
+  { id: "figma", ...ARTIFACT_POSITIONS.stickerFigma },
 ] as const
 
 type Panel = "spiderman" | null
@@ -112,6 +142,7 @@ function Artifact({
   entranceDelay?: number
 }) {
   const interactive = Boolean(onOpen)
+  const isBook = className.includes("book-artifact-group")
   const computedEntranceDelay = entranceDelay ?? (120 + (Math.abs(Math.round(x + y)) % 8) * 70)
   return (
     <div
@@ -153,19 +184,22 @@ function Artifact({
         } outline-none ${className}`}
         style={{
           transform: `rotate(${rotate}deg)`,
-          filter: "drop-shadow(0 18px 24px rgba(6,20,48,0.45))",
+          filter: isBook ? "none" : "drop-shadow(0 18px 24px rgba(6,20,48,0.45))",
         }}
         onMouseEnter={(e) => {
+          if (isBook) return
           e.currentTarget.style.transform = `rotate(${rotate * 0.35}deg) translateY(-8px) scale(1.04)`
           e.currentTarget.style.filter =
             "drop-shadow(0 30px 40px rgba(6,20,48,0.55))"
         }}
         onMouseLeave={(e) => {
+          if (isBook) return
           e.currentTarget.style.transform = `rotate(${rotate}deg)`
           e.currentTarget.style.filter =
             "drop-shadow(0 18px 24px rgba(6,20,48,0.45))"
         }}
         onFocus={(e) => {
+          if (isBook) return
           e.currentTarget.style.transform = `rotate(0deg) translateY(-8px) scale(1.04)`
         }}
         onBlur={(e) => {
@@ -212,9 +246,9 @@ function Tape({ className = "", rotate = 0 }: { className?: string; rotate?: num
 /* --- Polaroid ---------------------------------------------------- */
 function Polaroid({ src, caption, fit = "cover", focus = "center" }: { src?: string; caption: string; fit?: "cover" | "contain"; focus?: string }) {
   return (
-    <div className="relative w-[180px] bg-[#fbf9f2] p-2.5 pb-9">
+    <div className="relative w-[205px] rounded-[7px] bg-[#fbf9f2] p-2.5 pb-9">
       <Tape className="-top-2 left-1/2 -translate-x-1/2 opacity-80" rotate={-4} />
-      <div className="h-[190px] w-full overflow-hidden bg-[#d8d1c2]">
+      <div className="h-[230px] w-full overflow-hidden rounded-[4px] bg-[#d8d1c2]">
         {src ? <img src={src} alt={caption} loading="lazy" decoding="async" className="h-full w-full" style={{ objectFit: fit, objectPosition: focus }} /> : <div className="photo-pending"><span>Photo pending</span><small>approved archive asset</small></div>}
       </div>
       <p className="absolute bottom-2 left-3 font-serif text-[15px] italic text-[#2a2a2a]">
@@ -338,26 +372,6 @@ function GalleryCarousel({ index, onChange, onClose, lightMode }: { index: numbe
   </div>
 }
 
-function AboutSheet({ onClose, lightMode }: { onClose: () => void; lightMode: boolean }) {
-  const closeRef = useRef<HTMLButtonElement>(null)
-  useEffect(() => {
-    const previous = document.activeElement as HTMLElement | null
-    closeRef.current?.focus()
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") onClose() }
-    window.addEventListener("keydown", onKey)
-    return () => { window.removeEventListener("keydown", onKey); previous?.focus() }
-  }, [onClose])
-  return <div className={`about-sheet ${lightMode ? "is-light" : ""}`} role="dialog" aria-modal="true" aria-labelledby="about-sheet-title" onPointerDown={(event) => event.stopPropagation()} onWheel={(event) => event.stopPropagation()} onKeyDown={trapDialogTab}>
-    <div className="about-sheet-inner">
-      <header><button ref={closeRef} type="button" onClick={onClose}>Close <span aria-hidden="true">×</span></button></header>
-      <h2 id="about-sheet-title">The person behind the archive.</h2>
-      <p className="about-sheet-lead">I&apos;m Andre Sanjaya, a Product and UI UX Designer based in Bali. I&apos;m interested in clear interfaces for real workflows, especially the small decisions that make complex products easier to use.</p>
-      <div className="about-sheet-columns"><section><span>01 / Work</span><h3>What I make</h3><p>Product and interface design. The Case Files hold selected projects; Field Notes collect questions about labels, actions, feedback, filters, and error prevention.</p></section><section><span>02 / Curiosity</span><h3>What I keep</h3><p>Experiments and personal references sit beside the work as a record of the things I explore, notice, and revisit.</p></section></div>
-      <div className="about-sheet-contact"><span>Continue the conversation</span><a href="mailto:andresanjaya2506@gmail.com">andresanjaya2506@gmail.com ↗</a></div>
-    </div>
-  </div>
-}
-
 function MobileArchive({ cinemaOpen, onCinema, onMixtape }: { cinemaOpen: boolean; onCinema: () => void; onMixtape: () => void }) {
   return <main className="mobile-archive" onPointerDown={(event) => event.stopPropagation()}>
     <header className="mobile-identity">
@@ -374,7 +388,7 @@ function MobileArchive({ cinemaOpen, onCinema, onMixtape }: { cinemaOpen: boolea
       </div>
     </section>
     <section aria-labelledby="mobile-photos"><div className="mobile-section-title"><span>02</span><h2 id="mobile-photos">Contact sheet</h2></div><div className="mobile-photo"><img src={PHOTOS[0].src} alt="Graduation portrait" /><span>Graduation</span></div></section>
-    <section aria-labelledby="mobile-references"><div className="mobile-section-title"><span>03</span><h2 id="mobile-references">Personal references</h2></div><div className="mobile-reference-row"><img src="/archive/assets/figma-sticker.jpg" alt="Figma sticker" /><img src="/archive/assets/marvel.png" alt="Marvel reference" /><img src="/archive/assets/bali-postcard.png" alt="Bali postcard" /></div></section>
+    <section aria-labelledby="mobile-references"><div className="mobile-section-title"><span>03</span><h2 id="mobile-references">Personal references</h2></div><div className="mobile-reference-row"><img src="/archive/assets/figma-sticker.png" alt="Figma sticker" /><img src="/archive/assets/marvel.png" alt="Marvel reference" /><img src="/archive/assets/bali-postcard.png" alt="Bali postcard" /></div></section>
   </main>
 }
 
@@ -395,9 +409,9 @@ export default function App() {
   const [photoIndex, setPhotoIndex] = useState(0)
   const [galleryOpen, setGalleryOpen] = useState(false)
   const [galleryPhotoOpen, setGalleryPhotoOpen] = useState(false)
-  const [aboutOpen, setAboutOpen] = useState(false)
+  const [puzzleOpen, setPuzzleOpen] = useState(false)
   const closeGallery = useCallback(() => { setGalleryOpen(false); setGalleryPhotoOpen(false) }, [])
-  const closeAbout = useCallback(() => setAboutOpen(false), [])
+  const closePuzzle = useCallback(() => setPuzzleOpen(false), [])
   const closePhoto = useCallback(() => setGalleryPhotoOpen(false), [])
   const [albumSelected, setAlbumSelected] = useState(false)
   const [trackIndex, setTrackIndex] = useState(0)
@@ -413,6 +427,12 @@ export default function App() {
   const boardRef = useRef<HTMLDivElement>(null)
   const planeRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const plane = planeRef.current;
+    if (puzzleOpen) plane?.setAttribute("inert", "");
+    else plane?.removeAttribute("inert");
+    return () => plane?.removeAttribute("inert");
+  }, [puzzleOpen]);
   const xReadoutRef = useRef<HTMLSpanElement>(null)
   const yReadoutRef = useRef<HTMLSpanElement>(null)
   const activeTrackRef = useRef<string | null>(null)
@@ -659,6 +679,7 @@ export default function App() {
       className="relative h-screen w-screen overflow-hidden select-none archive-spatial"
       style={{
         cursor: "default",
+        touchAction: puzzleOpen ? "auto" : undefined,
         backgroundColor: "#1f6b50",
         backgroundImage: "linear-gradient(115deg, rgba(255,255,255,0.025), transparent 45%, rgba(5,35,26,0.05))",
       }}
@@ -722,7 +743,7 @@ export default function App() {
         >
           <div className={`identity-card ${lightMode ? "is-light" : "is-dark"}`}>
             <header className="identity-header">
-              <img src="/archive/assets/pict-3.jpg" alt="Portrait of Andre Sanjaya" decoding="async" />
+              <img src="/archive/assets/profile.jpg" alt="Portrait of Andre Sanjaya" decoding="async" />
               <div><h1>Andre Sanjaya</h1><p>UI/UX Designer</p></div>
             </header>
             <section className="identity-about" aria-label="About Andre">
@@ -754,20 +775,23 @@ export default function App() {
         </div>
 
         {/* ===== POKÉMON — upper-left collectible ===== */}
-        <Artifact {...layoutFor("pokemon", ARTIFACT_POSITIONS.pokemon)} label="Pokémon" className="cursor-pokemon" onOpen={() => { discover("pokemon"); playMicroSound("card") }}>
+        <Artifact {...layoutFor("pokemon", ARTIFACT_POSITIONS.pokemonLogo)} label="Pokémon" className="cursor-pokemon" onOpen={() => { discover("pokemon"); playMicroSound("card") }}>
           <img src="/archive/assets/pokemon.svg" alt="Pokémon personal reference" className="pokemon-asset" />
         </Artifact>
 
-        <Artifact {...layoutFor("song-three", { x: 650, y: 650, rotate: 4 })} z={40} width={168} label="Gemilang · Perunggu" className="cursor-music" onOpen={() => void toggleAlbumPlayback(2)}>
+        <Artifact {...layoutFor("pokemon-card", ARTIFACT_POSITIONS.pokemonCard)} label="Pokemon card" className="cursor-pokemon" onOpen={() => { disturb("pokemon-card"); playMicroSound("card") }}>
+          <img src="/archive/assets/pokemon-card.png" alt="Pokemon trading card" className="board-image-pokemon-card" />
+        </Artifact>
+
+        <Artifact {...layoutFor("song-three", ARTIFACT_POSITIONS.albumGemilang)} z={40} width={200} label="Gemilang · Perunggu" className="cursor-music" onOpen={() => void toggleAlbumPlayback(2)}>
           <div className={`record-artifact ${activeTrackId === tracks[2].id ? "is-open" : ""} ${activeTrackId === tracks[2].id && audioPlaying ? "is-playing" : ""}`}>
             <div className="vinyl-record" aria-hidden="true"><span /></div>
             <div className="record-sleeve"><img src="/archive/assets/song-3.jpg" alt="Dalam Dinamika album cover" /></div>
-            <span className="record-caption"><strong>{tracks[2].title}</strong><small>{tracks[2].artist}</small></span>
           </div>
         </Artifact>
 
         {/* ===== MARVEL — upper-right ticket/comic ===== */}
-        <Artifact {...layoutFor("marvel", ARTIFACT_POSITIONS.marvel)} label="Marvel">
+        <Artifact {...layoutFor("marvel", ARTIFACT_POSITIONS.marvelLogo)} label="Marvel">
           <div className="marvel-logo-wrap">
               <img src="/archive/assets/marvel.png" alt="Marvel" className="marvel-asset" />
             <div className="relative hidden px-3 py-4">
@@ -787,7 +811,7 @@ export default function App() {
         </Artifact>
 
         {/* ===== SPIDER-MAN — right, web card ===== */}
-        <Artifact {...ARTIFACT_POSITIONS.spiderman} label="Spider-Man">
+        <Artifact {...ARTIFACT_POSITIONS.spiderManReference} label="Spider-Man">
           <div className="hidden relative overflow-hidden rounded-lg bg-[#0d1836] p-3 ring-1 ring-black/30">
             <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full opacity-25">
               {[15, 30, 45].map((r) => (
@@ -806,43 +830,47 @@ export default function App() {
           <img src="/archive/assets/spiderman.webp" alt="Spider-Man reference" className="board-image-asset" />
         </Artifact>
 
-        <div className="tiny-pixel-position archive-entrance" style={{ ["--entrance-delay" as string]: "540ms" }}><TinyPixelCanvas /></div>
 
         {/* ===== Polaroids ===== */}
-        <Artifact {...layoutFor("pict-one", ARTIFACT_POSITIONS.north)} label="Graduation photograph">
+        <Artifact {...layoutFor("pict-one", ARTIFACT_POSITIONS.photoGraduation)} label="Graduation photograph">
           <Polaroid src={PHOTOS[0].src} caption={PHOTOS[0].caption} />
         </Artifact>
-        <Artifact {...layoutFor("pict-two", ARTIFACT_POSITIONS.onFoot)} label="Kindergarten photograph">
+        <Artifact {...layoutFor("pict-two", ARTIFACT_POSITIONS.photoKindergarten)} label="Kindergarten photograph">
           <Polaroid src={PHOTOS[1].src} caption={PHOTOS[1].caption} fit="contain" focus="center" />
         </Artifact>
-        <Artifact {...layoutFor("pict-four", ARTIFACT_POSITIONS.stillness)} label="Personal Reference">
+        <Artifact {...layoutFor("pict-four", ARTIFACT_POSITIONS.photoPersonalReference)} label="Personal Reference">
           <Polaroid src={PHOTOS[2].src} caption={PHOTOS[2].caption} />
         </Artifact>
 
         {/* ===== Photography contact sheet (lower-left) ===== */}
-        <Artifact {...layoutFor("pict-five", ARTIFACT_POSITIONS.fifth)} label="Me & Pikachu">
+        <Artifact {...layoutFor("pict-five", ARTIFACT_POSITIONS.photoPikachu)} label="Andre Sanjaya">
           <Polaroid src={PHOTOS[3].src} caption={PHOTOS[3].caption} />
         </Artifact>
 
         {/* ===== Album and vinyl (lower-center) ===== */}
-        <Artifact {...layoutFor("mixtape", ARTIFACT_POSITIONS.cassette)} label="Mardy Bum · Arctic Monkeys" className="cursor-music" onOpen={() => void toggleAlbumPlayback(0)}>
+        <Artifact {...layoutFor("mixtape", ARTIFACT_POSITIONS.albumMardyBum)} label="Mardy Bum · Arctic Monkeys" className="cursor-music" onOpen={() => void toggleAlbumPlayback(0)}>
           <div className={`record-artifact ${activeTrackId === tracks[0].id ? "is-open" : ""} ${activeTrackId === tracks[0].id && audioPlaying ? "is-playing" : ""}`}>
             <div className="vinyl-record" aria-hidden="true"><span /></div>
             <div className="record-sleeve"><img src="/archive/assets/song-1.jpg" alt="Mardy Bum by Arctic Monkeys album cover" /></div>
-            <span className="record-caption"><strong>{tracks[0].title}</strong><small>{tracks[0].artist}</small></span>
           </div>
         </Artifact>
 
-        <Artifact {...layoutFor("song-two", { x: 1040, y: 555, rotate: -5 })} z={40} width={168} label="Good Riddance · Green Day" className="cursor-music" onOpen={() => void toggleAlbumPlayback(1)}>
+        <Artifact {...layoutFor("song-two", ARTIFACT_POSITIONS.albumGoodRiddance)} z={40} width={200} label="Good Riddance · Green Day" className="cursor-music" onOpen={() => void toggleAlbumPlayback(1)}>
           <div className={`record-artifact ${activeTrackId === tracks[1].id ? "is-open" : ""} ${activeTrackId === tracks[1].id && audioPlaying ? "is-playing" : ""}`}>
             <div className="vinyl-record" aria-hidden="true"><span /></div>
             <div className="record-sleeve"><img src="/archive/assets/song-2.jpg" alt="Good Riddance album cover" /></div>
-            <span className="record-caption"><strong>{tracks[1].title}</strong><small>{tracks[1].artist}</small></span>
+          </div>
+        </Artifact>
+
+        <Artifact {...layoutFor("song-four", ARTIFACT_POSITIONS.albumEarrings)} z={40} width={200} label="Earrings - Malcolm Todd" className="cursor-music" onOpen={() => void toggleAlbumPlayback(3)}>
+          <div className={`record-artifact ${activeTrackId === tracks[3].id ? "is-open" : ""} ${activeTrackId === tracks[3].id && audioPlaying ? "is-playing" : ""}`}>
+            <div className="vinyl-record" aria-hidden="true"><span /></div>
+            <div className="record-sleeve"><img src="/archive/assets/song-4.jpg" alt="Earrings by Malcolm Todd album cover" /></div>
           </div>
         </Artifact>
 
         {/* ===== Bali fragment / stamp (top) ===== */}
-        <Artifact {...layoutFor("bali-stamp", ARTIFACT_POSITIONS.bali)} label="Bali stamp">
+        <Artifact {...layoutFor("bali-stamp", ARTIFACT_POSITIONS.stampBali)} label="Bali stamp">
           <div className="bali-stamp-wrap"
             style={{ filter: "drop-shadow(0 0 0 #fff)",
               WebkitMaskImage: "radial-gradient(circle at 4px 4px, transparent 3px, #000 3px)",
@@ -855,24 +883,24 @@ export default function App() {
         </Artifact>
 
         {/* ===== Sticker cluster: tech identity ===== */}
-        <Sticker id="figma" x={assetLayout.figma?.x ?? -400} y={assetLayout.figma?.y ?? -455} rotate={assetLayout.figma?.rotate ?? -6} imageSrc="/archive/assets/figma-sticker.jpg" label="figma" movable onClick={() => { discover("figma"); playMicroSound("ui") }} onDisturb={() => disturb("figma-drag")} />
-        <Sticker id="react" x={-390} y={455} rotate={-6} bg="#20232a" text="⚛ React" color="#61dafb" movable />
+        <Sticker id="figma" x={assetLayout.figma?.x ?? ARTIFACT_POSITIONS.stickerFigma.x} y={assetLayout.figma?.y ?? ARTIFACT_POSITIONS.stickerFigma.y} rotate={assetLayout.figma?.rotate ?? ARTIFACT_POSITIONS.stickerFigma.rotate} imageSrc="/archive/assets/figma-sticker.png" label="figma" movable onClick={() => { discover("figma"); playMicroSound("ui") }} onDisturb={() => disturb("figma-drag")} />
 
         {/* ===== Playful archive interactions ===== */}
-        <Artifact x={-1035} y={425} rotate={-3} z={36} width={190} label="Scratch card">
+        <Artifact {...ARTIFACT_POSITIONS.scratchCard} label="Scratch card">
           <ScratchCard onDiscover={() => disturb("scratch-card")} onSound={() => playMicroSound("card")} />
         </Artifact>
 
         {/* ===== User-supplied archive assets ===== */}
         {BOARD_ASSETS.map((asset) => {
-          const layout = assetLayout[asset.id] ?? asset
-          const isMovie = asset.id.startsWith("movie") || asset.id === "letterboxd"
+          const positionKey = BOARD_ASSET_POSITION_KEYS[asset.id]
+          const layout = assetLayout[asset.id] ?? ARTIFACT_POSITIONS[positionKey]
+          const isMovie = asset.id.startsWith("movie") || asset.id.startsWith("series") || asset.id === "letterboxd"
           const isBook = asset.id.startsWith("book")
           return <Artifact key={asset.id} x={layout.x} y={layout.y} rotate={layout.rotate} z={30} width={asset.width} label={asset.caption} className={`${isMovie ? "cursor-cinema" : ""} ${isBook ? "book-artifact-group" : ""}`} onOpen={() => { disturb(asset.id); if (isMovie) playMicroSound("projector") }}>
             {isBook ? <div className="book-artifact-scene"><div className="book-artifact"><span className="book-artifact-back" aria-hidden="true" /><span className="book-artifact-pages" aria-hidden="true" /><span className="book-artifact-front"><img src={asset.src} alt={asset.alt} loading="lazy" decoding="async" /></span></div></div> : <img src={asset.src} alt={asset.alt} loading="lazy" decoding="async" className="board-image-asset" />}
           </Artifact>
         })}
-{curiosityFound && <Artifact {...ARTIFACT_POSITIONS.hidden}>
+{curiosityFound && <Artifact {...ARTIFACT_POSITIONS.curiositySecret}>
           <aside className="hidden-artifact"><span>+1 hidden artifact</span><strong>Curiosity &gt; category</strong><p>Good ideas rarely stay inside one folder.</p></aside>
         </Artifact>}
       </div>
@@ -886,10 +914,10 @@ export default function App() {
       >
         <div className="flex items-center gap-1 rounded-full bg-[#0b1220]/85 px-2 py-1.5 shadow-2xl ring-1 ring-white/10 backdrop-blur-md">
           {[
-            ["Home", "⌂", !galleryOpen && !aboutOpen],
-            ["About", "◈", aboutOpen],
-            ["Photos", "▣", galleryOpen],
-          ].map(([label, icon, active]) => (
+            ["Home", !galleryOpen && !puzzleOpen],
+            ["Photos", galleryOpen],
+            ["Puzzle", puzzleOpen],
+          ].map(([label, active]) => (
             <button
               key={label as string}
               type="button"
@@ -898,9 +926,9 @@ export default function App() {
               aria-label={label as string}
               aria-current={active ? "page" : undefined}
               onClick={() => {
-                if (label === "Home") { closeGallery(); closeAbout(); setPanel(null); resetHomePosition() }
-                else if (label === "About") { closeGallery(); setAboutOpen(true) }
-                else if (label === "Photos") { closeAbout(); setGalleryOpen(true) }
+                if (label === "Home") { closeGallery(); closePuzzle(); setPanel(null); resetHomePosition() }
+                else if (label === "Puzzle") { closeGallery(); setPuzzleOpen(true) }
+                else if (label === "Photos") { closePuzzle(); setGalleryOpen(true) }
               }}
               className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[11px] transition ${
                 active
@@ -908,7 +936,13 @@ export default function App() {
                   : "text-white/55 hover:text-white hover:bg-white/6"
               }`}
             >
-              <span className="text-[13px]">{icon}</span>
+              <span className="grid h-4 w-4 place-items-center" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  {label === "Home" && <><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10Z" /><path d="M9 21v-7h6v7" /></>}
+                  {label === "Photos" && <><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="8.5" cy="9" r="1.5" /><path d="m4 17 5-5 3.5 3.5 2.5-2.5 5 5" /></>}
+                  {label === "Puzzle" && <path d="M9 3H4v6a3 3 0 1 1 0 6v6h6a3 3 0 1 1 6 0h5v-6a3 3 0 1 0 0-6V3h-6a3 3 0 1 0-6 0Z" />}
+                </svg>
+              </span>
               {active && <span className="tracking-wide">{label}</span>}
             </button>
           ))}
@@ -958,13 +992,13 @@ export default function App() {
       </nav>
 
       {/* corner meta */}
-      {!galleryOpen && !aboutOpen && <div className="pointer-events-none fixed left-5 top-4 z-[90] font-mono text-[10px] uppercase tracking-[0.2em] text-white/55">
+      {!galleryOpen && !puzzleOpen && <div className="pointer-events-none fixed left-5 top-4 z-[90] font-mono text-[10px] uppercase tracking-[0.2em] text-white/55">
         Andre&apos;s Archive
       </div>}
-      {!galleryOpen && !aboutOpen && <div className="curiosity-counter" role="status" aria-live="polite">
+      {!galleryOpen && !puzzleOpen && <div className="curiosity-counter" role="status" aria-live="polite">
         {disturbed.length} / {BOARD_ARTIFACT_COUNT} artifacts disturbed
       </div>}
-      {!galleryOpen && !aboutOpen && <div className="coordinate-readout" aria-label="Board position and local time">
+      {!galleryOpen && !puzzleOpen && <div className="coordinate-readout" aria-label="Board position and local time">
         <span ref={xReadoutRef}>x 0</span><span ref={yReadoutRef}>y 0</span>
         <LocalClock />
       </div>}
@@ -992,7 +1026,7 @@ export default function App() {
       )}
       {galleryOpen && galleryPhotoOpen && <GalleryCarousel index={photoIndex} onChange={setPhotoIndex} onClose={closePhoto} lightMode={lightMode} />}
       {galleryOpen && <PhotoGallery onOpen={(index) => { setPhotoIndex(index); setGalleryPhotoOpen(true) }} onClose={closeGallery} lightMode={lightMode} />}
-      {aboutOpen && <AboutSheet onClose={closeAbout} lightMode={lightMode} />}
+      {puzzleOpen && <PicturePuzzle onClose={closePuzzle} lightMode={lightMode} />}
       {albumSelected && <div className="album-toast" role="status" aria-live="polite" onPointerDown={(event) => event.stopPropagation()}>
         <span className={audioPlaying ? "album-toast-dot is-playing" : "album-toast-dot"} aria-hidden="true" />
         <div><strong>{audioPlaying ? "Now playing" : "Mixtape paused"}</strong><p>{nowPlaying || `${track.title} — ${track.artist}`}</p></div>

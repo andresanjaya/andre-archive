@@ -5,7 +5,8 @@
     "dev": "node scripts/dev.mjs",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "prebuild": "node scripts/sync-photos.mjs",
+    "prebuild": "node scripts/sync-photos.mjs && node scripts/sync-puzzle.mjs",
+    "sync:puzzle": "node scripts/sync-puzzle.mjs",
     "sync:photos": "node scripts/sync-photos.mjs",
     "build": "next build"
   },

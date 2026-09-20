@@ -29,4 +29,11 @@ export const tracks: MixtapeTrack[] = [
     src: '/archive/audio/song-3.mp3',
     cover: '/archive/assets/song-3.jpg',
   },
+  {
+    id: 'malcolm-todd-earrings',
+    title: 'Earrings',
+    artist: 'Malcolm Todd',
+    src: '/archive/audio/song-4.mp3',
+    cover: '/archive/assets/song-4.jpg',
+  },
 ];
