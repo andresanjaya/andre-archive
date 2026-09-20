@@ -31,16 +31,16 @@ const BOARD_ASSETS = [
 ] as const
 
 const ARTIFACT_POSITIONS = {
-  pokemon: { x: -410, y: -315, rotate: -7, z: 40, width: 132 },
+  pokemon: { x: -700, y: -350, rotate: -7, z: 40, width: 132 },
   marvel: { x: 555, y: -315, rotate: 5, z: 30, width: 104 },
-  spiderman: { x: 665, y: 5, rotate: -5, z: 40, width: 110 },
-  north: { x: -620, y: -110, rotate: -6, z: 30 },
-  onFoot: { x: -650, y: 270, rotate: 5, z: 30 },
-  stillness: { x: 650, y: -110, rotate: 4, z: 30 },
-  cassette: { x: -135, y: 445, rotate: -3, z: 40, width: 168 },
+  spiderman: { x: 850, y: 100, rotate: -5, z: 40, width: 110 },
+  north: { x: -580, y: -150, rotate: 10, z: 30 },
+  onFoot: { x: -500, y: 200, rotate: -10, z: 30 },
+  stillness: { x: 550, y: -110, rotate: -15, z: 30 },
+  cassette: { x: -700, y: 445, rotate: -3, z: 40, width: 168 },
   note: { x: -880, y: -80, rotate: -3, z: 20, width: 128 },
-  bali: { x: 95, y: -445, rotate: 4, z: 30, width: 120 },
-  fifth: { x: 650, y: 285, rotate: -5, z: 30 },
+  bali: { x: -1000, y: -445, rotate: 4, z: 30, width: 120 },
+  fifth: { x: 550, y: 250, rotate: 12, z: 30 },
   hidden: { x: -845, y: 430, rotate: -4, z: 30, width: 190 },
 } as const
 
@@ -56,7 +56,7 @@ const RANDOMIZABLE_ASSETS = [
   { id: "song-two", x: 1040, y: 555, rotate: -5 },
   { id: "song-three", x: 650, y: 650, rotate: 4 },
   { id: "bali-stamp", ...ARTIFACT_POSITIONS.bali },
-  { id: "figma", x: -400, y: -455, rotate: -6 },
+  { id: "figma", x: -500, y: -450, rotate: -6 },
 ] as const
 
 type Panel = "spiderman" | null
@@ -815,12 +815,12 @@ export default function App() {
         <Artifact {...layoutFor("pict-two", ARTIFACT_POSITIONS.onFoot)} label="Kindergarten photograph">
           <Polaroid src={PHOTOS[1].src} caption={PHOTOS[1].caption} fit="contain" focus="center" />
         </Artifact>
-        <Artifact {...layoutFor("pict-four", ARTIFACT_POSITIONS.stillness)} label="Mirror selfie">
+        <Artifact {...layoutFor("pict-four", ARTIFACT_POSITIONS.stillness)} label="Personal Reference">
           <Polaroid src={PHOTOS[2].src} caption={PHOTOS[2].caption} />
         </Artifact>
 
         {/* ===== Photography contact sheet (lower-left) ===== */}
-        <Artifact {...layoutFor("pict-five", ARTIFACT_POSITIONS.fifth)} label="Archive photograph">
+        <Artifact {...layoutFor("pict-five", ARTIFACT_POSITIONS.fifth)} label="Me & Pikachu">
           <Polaroid src={PHOTOS[3].src} caption={PHOTOS[3].caption} />
         </Artifact>
 
