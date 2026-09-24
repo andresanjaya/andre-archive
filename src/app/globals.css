@@ -181,6 +181,47 @@ input:focus-visible {
 .board-image-letterboxd figcaption { color: white; text-align: center; }
 .board-image-pokemon-card img { max-height: 184px; object-fit: contain; }
 
+/* Projector Light from preview.html, shared by movie and series posters. */
+.projector-poster {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  border-radius: 7px;
+  transform: translateY(0) scale(1);
+  transition: transform 400ms cubic-bezier(.2,.8,.2,1), box-shadow 400ms ease;
+  box-shadow: 0 15px 30px rgba(0,0,0,.35), 0 35px 75px rgba(0,0,0,.5);
+}
+.projector-poster-content { position: relative; overflow: hidden; border-radius: inherit; background: #20100b; }
+.projector-poster-image {
+  user-select: none;
+  pointer-events: none;
+  transition: transform 500ms ease, filter 500ms ease;
+}
+.projector-light-sweep {
+  position: absolute;
+  top: -50%;
+  left: -100%;
+  width: 75%;
+  height: 200%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.02) 15%, rgba(255,236,195,.20) 45%, rgba(255,255,255,.40) 50%, rgba(255,236,195,.20) 55%, rgba(255,255,255,.02) 85%, transparent 100%);
+  transform: rotate(25deg);
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.projector-poster-group:hover .projector-poster {
+  transform: translateY(-9px) scale(1.035);
+  box-shadow: 0 20px 40px rgba(0,0,0,.45), 0 45px 100px rgba(0,0,0,.6), 0 0 60px rgba(255,91,24,.10);
+}
+.projector-poster-group:hover .projector-light-sweep { opacity: 1; animation: projector-sweep 1.25s ease-in-out forwards; }
+.projector-poster-group:hover .projector-poster-image { transform: scale(1.045); filter: contrast(1.08) saturate(1.1); }
+@keyframes projector-sweep { from { left: -100%; } to { left: 150%; } }
+@media (prefers-reduced-motion: reduce) {
+  .projector-poster, .projector-poster-image { transition: none; }
+  .projector-poster-group:hover .projector-poster { transform: none; }
+  .projector-poster-group:hover .projector-light-sweep { animation: none; opacity: 0; }
+}
+
 .archive-sticker {
   position: relative;
   cursor: default;

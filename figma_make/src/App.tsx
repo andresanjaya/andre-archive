@@ -28,9 +28,9 @@ const BOARD_ASSETS = [
   { id: "movie-two", src: "/archive/assets/movie-2.jpg", alt: "Good Will Hunting poster", caption: "Good Will Hunting", width: 130 },
   { id: "movie-three", src: "/archive/assets/movie-3.jpg", alt: "Eternal Sunshine of the Spotless Mind poster", caption: "Eternal Sunshine", width: 137 },
   { id: "movie-four", src: "/archive/assets/movie-4.jpg", alt: "Forrest Gump", caption: "Forrest Gump", width: 132 },
-  { id: "series-one", src: "/archive/assets/series-1.jpg", alt: "Series reference one", caption: "Series reference one", width: 128 },
-  { id: "series-two", src: "/archive/assets/series-2.jpg", alt: "Series reference two", caption: "Series reference two", width: 128 },
-  { id: "series-three", src: "/archive/assets/series-3.jpg", alt: "Series reference three", caption: "Series reference three", width: 128 },
+  { id: "series-one", src: "/archive/assets/series-1.jpg", alt: "Breaking Bad", caption: "Breaking Bad", width: 128 },
+  { id: "series-two", src: "/archive/assets/series-2.jpg", alt: "Dark", caption: "Dark", width: 128 },
+  { id: "series-three", src: "/archive/assets/series-3.jpg", alt: "Loki", caption: "Loki", width: 128 },
   { id: "archive-logo", src: "/archive/assets/logo.svg", alt: "Andre Archive logo", caption: "Archive logo", width: 125 },
 ] as const
 
@@ -143,6 +143,7 @@ function Artifact({
 }) {
   const interactive = Boolean(onOpen)
   const isBook = className.includes("book-artifact-group")
+  const isProjectorPoster = className.includes("projector-poster-group")
   const computedEntranceDelay = entranceDelay ?? (120 + (Math.abs(Math.round(x + y)) % 8) * 70)
   return (
     <div
@@ -184,25 +185,26 @@ function Artifact({
         } outline-none ${className}`}
         style={{
           transform: `rotate(${rotate}deg)`,
-          filter: isBook ? "none" : "drop-shadow(0 18px 24px rgba(6,20,48,0.45))",
+          filter: isBook || isProjectorPoster ? "none" : "drop-shadow(0 18px 24px rgba(6,20,48,0.45))",
         }}
         onMouseEnter={(e) => {
-          if (isBook) return
+          if (isBook || isProjectorPoster) return
           e.currentTarget.style.transform = `rotate(${rotate * 0.35}deg) translateY(-8px) scale(1.04)`
           e.currentTarget.style.filter =
             "drop-shadow(0 30px 40px rgba(6,20,48,0.55))"
         }}
         onMouseLeave={(e) => {
-          if (isBook) return
+          if (isBook || isProjectorPoster) return
           e.currentTarget.style.transform = `rotate(${rotate}deg)`
           e.currentTarget.style.filter =
             "drop-shadow(0 18px 24px rgba(6,20,48,0.45))"
         }}
         onFocus={(e) => {
-          if (isBook) return
+          if (isBook || isProjectorPoster) return
           e.currentTarget.style.transform = `rotate(0deg) translateY(-8px) scale(1.04)`
         }}
         onBlur={(e) => {
+          if (isProjectorPoster) return
           e.currentTarget.style.transform = `rotate(${rotate}deg)`
         }}
       >
@@ -212,6 +214,17 @@ function Artifact({
             {label}
           </span>
         )}
+      </div>
+    </div>
+  )
+}
+
+function ProjectorPoster({ src, alt }: { src: string; alt: string }) {
+  return (
+    <div className="projector-poster">
+      <div className="projector-poster-content">
+        <img src={src} alt={alt} loading="lazy" decoding="async" className="board-image-asset projector-poster-image" />
+        <span className="projector-light-sweep" aria-hidden="true" />
       </div>
     </div>
   )
@@ -895,9 +908,10 @@ export default function App() {
           const positionKey = BOARD_ASSET_POSITION_KEYS[asset.id]
           const layout = assetLayout[asset.id] ?? ARTIFACT_POSITIONS[positionKey]
           const isMovie = asset.id.startsWith("movie") || asset.id.startsWith("series") || asset.id === "letterboxd"
+          const isProjectorPoster = /\/(?:movies?|series)-/i.test(asset.src)
           const isBook = asset.id.startsWith("book")
-          return <Artifact key={asset.id} x={layout.x} y={layout.y} rotate={layout.rotate} z={30} width={asset.width} label={asset.caption} className={`${isMovie ? "cursor-cinema" : ""} ${isBook ? "book-artifact-group" : ""}`} onOpen={() => { disturb(asset.id); if (isMovie) playMicroSound("projector") }}>
-            {isBook ? <div className="book-artifact-scene"><div className="book-artifact"><span className="book-artifact-back" aria-hidden="true" /><span className="book-artifact-pages" aria-hidden="true" /><span className="book-artifact-front"><img src={asset.src} alt={asset.alt} loading="lazy" decoding="async" /></span></div></div> : <img src={asset.src} alt={asset.alt} loading="lazy" decoding="async" className="board-image-asset" />}
+          return <Artifact key={asset.id} x={layout.x} y={layout.y} rotate={layout.rotate} z={30} width={asset.width} label={asset.caption} className={`${isMovie ? "cursor-cinema" : ""} ${isBook ? "book-artifact-group" : ""} ${isProjectorPoster ? "projector-poster-group" : ""}`} onOpen={() => { disturb(asset.id); if (isMovie) playMicroSound("projector") }}>
+            {isBook ? <div className="book-artifact-scene"><div className="book-artifact"><span className="book-artifact-back" aria-hidden="true" /><span className="book-artifact-pages" aria-hidden="true" /><span className="book-artifact-front"><img src={asset.src} alt={asset.alt} loading="lazy" decoding="async" /></span></div></div> : isProjectorPoster ? <ProjectorPoster src={asset.src} alt={asset.alt} /> : <img src={asset.src} alt={asset.alt} loading="lazy" decoding="async" className="board-image-asset" />}
           </Artifact>
         })}
 {curiosityFound && <Artifact {...ARTIFACT_POSITIONS.curiositySecret}>
