@@ -23,6 +23,7 @@ const BOARD_ASSETS = [
   { id: "book", src: "/archive/assets/book-1.jpg", alt: "The Design of Everyday Things book cover", caption: "The Design of Everyday Things", width: 108 },
   { id: "book-two", src: "/archive/assets/book-2.jpg", alt: "Almost Adulting book cover", caption: "Almost Adulting", width: 106 },
   { id: "book-three", src: "/archive/assets/book-3.jpg", alt: "Atomic Habits book cover", caption: "Atomic Habits", width: 103 },
+  { id: "book-four", src: "/archive/assets/book-4.jpg", alt: "Detective Conan volume 24 book cover", caption: "Detective Conan Vol. 24", width: 105 },
   { id: "letterboxd", src: "/archive/assets/letterboxd.png", alt: "Letterboxd logo", caption: "Letterboxd", width: 92 },
   { id: "movie-one", src: "/archive/assets/movie-1.jpg", alt: "Oppenheimer poster", caption: "Oppenheimer", width: 134 },
   { id: "movie-two", src: "/archive/assets/movie-2.jpg", alt: "Good Will Hunting poster", caption: "Good Will Hunting", width: 130 },
@@ -40,6 +41,7 @@ const ARTIFACT_POSITIONS = {
   bookDesignEverydayThings: { x: -875, y: -150, rotate: 15, z: 30 },
   bookAlmostAdulting: { x: 875, y: -400, rotate: 8, z: 30 },
   bookAtomicHabits: { x: -1100, y: 60, rotate: -4, z: 30 },
+  bookDetectiveConan: { x: 570, y: -620, rotate: -8, z: 30 },
   letterboxdLogo: { x: 680, y: -300, rotate: 5, z: 30 },
   filmOppenheimer: { x: 300, y: 570, rotate: 4, z: 30 },
   filmGoodWillHunting: { x: -820, y: 145, rotate: -15, z: 30 },
@@ -63,12 +65,13 @@ const ARTIFACT_POSITIONS = {
   albumGemilang: { x: 800, y: 300, rotate: -10, z: 40, width: 200 },
   albumEarrings: { x: -250, y: 600, rotate: -4, z: 40, width: 200 },
   stickerFigma: { x: -450, y: -380, rotate: -6, z: 20 },
+  stickerCharizard: { x: 1080, y: -570, rotate: 8, z: 35, width: 120 },
   scratchCard: { x: -1035, y: 425, rotate: -3, z: 36, width: 220 },
   curiositySecret: { x: -845, y: 430, rotate: -4, z: 30, width: 190 },
 } as const
 
 const BOARD_ASSET_POSITION_KEYS = {
-  book: "bookDesignEverydayThings", "book-two": "bookAlmostAdulting", "book-three": "bookAtomicHabits", letterboxd: "letterboxdLogo",
+  book: "bookDesignEverydayThings", "book-two": "bookAlmostAdulting", "book-three": "bookAtomicHabits", "book-four": "bookDetectiveConan", letterboxd: "letterboxdLogo",
   "movie-one": "filmOppenheimer", "movie-two": "filmGoodWillHunting", "movie-three": "filmEternalSunshine", "movie-four": "filmForrestGump", "series-one": "seriesOne", "series-two": "seriesTwo", "series-three": "seriesThree", "archive-logo": "archiveLogo",
 } as const
 
@@ -87,6 +90,7 @@ const RANDOMIZABLE_ASSETS = [
   { id: "song-four", ...ARTIFACT_POSITIONS.albumEarrings },
   { id: "bali-stamp", ...ARTIFACT_POSITIONS.stampBali },
   { id: "figma", ...ARTIFACT_POSITIONS.stickerFigma },
+  { id: "charizard", ...ARTIFACT_POSITIONS.stickerCharizard },
 ] as const
 
 type Panel = "spiderman" | null
@@ -395,7 +399,7 @@ function MobileArchive({ cinemaOpen, onCinema, onMixtape }: { cinemaOpen: boolea
     </header>
     <section aria-labelledby="mobile-objects"><div className="mobile-section-title"><span>01</span><h2 id="mobile-objects">Selected objects</h2></div>
       <div className="mobile-object-grid">
-        <div className="mobile-object pokemon-mobile"><img src="/archive/assets/pokemon.svg" alt="Pokémon personal reference" /><span>Pokémon · personal reference</span></div>
+        <div className="mobile-object pokemon-mobile"><img src="/archive/assets/pokemon.png" alt="Pokémon personal reference" /><span>Pokémon · personal reference</span></div>
         <button type="button" className="mobile-object mobile-album" onClick={onMixtape}><img src="/archive/assets/song-1.jpg" alt="Mardy Bum by Arctic Monkeys album cover" /><span><strong>Andre&apos;s Mixtape</strong><small>Mardy Bum · Arctic Monkeys</small></span></button>
         <button type="button" className="mobile-object" onClick={onCinema} aria-expanded={cinemaOpen}><strong>Cinema</strong><span>{cinemaOpen ? "Spider-Man: Into the Spider-Verse" : "Films I keep thinking about"}</span></button>
       </div>
@@ -452,7 +456,7 @@ export default function App() {
   const playbackRequest = useRef(0)
   const soundContextRef = useRef<AudioContext | null>(null)
   const track = tracks[trackIndex]
-  const BOARD_ARTIFACT_COUNT = BOARD_ASSETS.length + 22
+  const BOARD_ARTIFACT_COUNT = BOARD_ASSETS.length + 23
   const drag = useRef<{ active: boolean; pointerId: number; moved: boolean; sx: number; sy: number; ox: number; oy: number }>({
     active: false,
     pointerId: -1,
@@ -789,7 +793,7 @@ export default function App() {
 
         {/* ===== POKÉMON — upper-left collectible ===== */}
         <Artifact {...layoutFor("pokemon", ARTIFACT_POSITIONS.pokemonLogo)} label="Pokémon" className="cursor-pokemon" onOpen={() => { discover("pokemon"); playMicroSound("card") }}>
-          <img src="/archive/assets/pokemon.svg" alt="Pokémon personal reference" className="pokemon-asset" />
+          <img src="/archive/assets/pokemon.png" alt="Pokémon personal reference" className="pokemon-asset" />
         </Artifact>
 
         <Artifact {...layoutFor("pokemon-card", ARTIFACT_POSITIONS.pokemonCard)} label="Pokemon card" className="cursor-pokemon" onOpen={() => { disturb("pokemon-card"); playMicroSound("card") }}>
@@ -840,7 +844,7 @@ export default function App() {
               </div>
             </div>
           </div>
-          <img src="/archive/assets/spiderman.webp" alt="Spider-Man reference" className="board-image-asset" />
+          <img src="/archive/assets/spiderman.png" alt="Spider-Man reference" className="board-image-asset" />
         </Artifact>
 
 
@@ -897,6 +901,7 @@ export default function App() {
 
         {/* ===== Sticker cluster: tech identity ===== */}
         <Sticker id="figma" x={assetLayout.figma?.x ?? ARTIFACT_POSITIONS.stickerFigma.x} y={assetLayout.figma?.y ?? ARTIFACT_POSITIONS.stickerFigma.y} rotate={assetLayout.figma?.rotate ?? ARTIFACT_POSITIONS.stickerFigma.rotate} imageSrc="/archive/assets/figma-sticker.png" label="figma" movable onClick={() => { discover("figma"); playMicroSound("ui") }} onDisturb={() => disturb("figma-drag")} />
+        <Sticker id="charizard" x={assetLayout.charizard?.x ?? ARTIFACT_POSITIONS.stickerCharizard.x} y={assetLayout.charizard?.y ?? ARTIFACT_POSITIONS.stickerCharizard.y} rotate={assetLayout.charizard?.rotate ?? ARTIFACT_POSITIONS.stickerCharizard.rotate} imageSrc="/archive/assets/charizard.png" label="charizard" movable onClick={() => { discover("charizard"); playMicroSound("card") }} onDisturb={() => disturb("charizard-drag")} />
 
         {/* ===== Playful archive interactions ===== */}
         <Artifact {...ARTIFACT_POSITIONS.scratchCard} label="Scratch card">
