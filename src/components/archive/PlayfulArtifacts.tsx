@@ -7,58 +7,6 @@ type InteractionProps = {
   onSound: () => void;
 };
 
-const SCRATCH_CELL_COUNT = 40;
-
-export function ScratchCard({ onDiscover, onSound }: InteractionProps) {
-  const [cleared, setCleared] = useState<Set<number>>(() => new Set());
-  const announced = useRef(false);
-
-  useEffect(() => {
-    if (cleared.size >= 16 && !announced.current) {
-      announced.current = true;
-      onDiscover();
-      onSound();
-    }
-  }, [cleared, onDiscover, onSound]);
-
-  const scratchAt = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (event.type === "pointermove" && event.buttons !== 1) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const column = Math.max(0, Math.min(7, Math.floor(((event.clientX - rect.left) / rect.width) * 8)));
-    const row = Math.max(0, Math.min(4, Math.floor(((event.clientY - rect.top) / rect.height) * 5)));
-    const center = row * 8 + column;
-    setCleared((current) => {
-      const next = new Set(current);
-      [center, center - 1, center + 1, center - 8, center + 8].forEach((cell) => {
-        if (cell >= 0 && cell < SCRATCH_CELL_COUNT) next.add(cell);
-      });
-      return next;
-    });
-  };
-
-  const reveal = () => setCleared(new Set(Array.from({ length: SCRATCH_CELL_COUNT }, (_, index) => index)));
-
-  return (
-    <div
-      className="scratch-card"
-      role="button"
-      tabIndex={0}
-      aria-label="Scratch to reveal the currently obsessed with card"
-      onPointerDown={(event) => { event.stopPropagation(); event.currentTarget.setPointerCapture(event.pointerId); scratchAt(event); }}
-      onPointerMove={scratchAt}
-      onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); reveal(); } }}
-    >
-      <span className="scratch-kicker">Currently obsessed with</span>
-      <strong>Mardy Bum</strong>
-      <small>Arctic Monkeys</small>
-      <div className="scratch-layer" aria-hidden="true">
-        {Array.from({ length: SCRATCH_CELL_COUNT }, (_, index) => <span key={index} className={cleared.has(index) ? "is-cleared" : ""} />)}
-      </div>
-      <span className="scratch-hint" aria-hidden="true">scratch me</span>
-    </div>
-  );
-}
-
 export function PeelNote({ onDiscover, onSound }: InteractionProps) {
   const [peeled, setPeeled] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });

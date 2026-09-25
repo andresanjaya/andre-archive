@@ -36,4 +36,25 @@ export const tracks: MixtapeTrack[] = [
     src: '/archive/audio/song-4.mp3',
     cover: '/archive/assets/song-4.jpg',
   },
+  {
+    id: 'oasis-wonderwall',
+    title: 'Wonderwall',
+    artist: 'Oasis',
+    src: '/archive/audio/song-5.mp3',
+    cover: '/archive/assets/song-5.jpg',
+  },
+  {
+    id: 'frank-ocean-white-ferrari',
+    title: 'White Ferrari',
+    artist: 'Frank Ocean',
+    src: '/archive/audio/song-6.mp3',
+    cover: '/archive/assets/song-6.jpg',
+  },
+  {
+    id: 'radiohead-high-and-dry',
+    title: 'High and Dry',
+    artist: 'Radiohead',
+    src: '/archive/audio/song-7.mp3',
+    cover: '/archive/assets/song-7.jpg',
+  },
 ];

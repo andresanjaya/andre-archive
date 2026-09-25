@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { tracks } from "../../src/data/tracks"
-import { ScratchCard } from "../../src/components/archive/PlayfulArtifacts"
 import dynamic from "next/dynamic"
 const PicturePuzzle = dynamic(() => import("../../src/components/archive/PicturePuzzle"), { ssr: false })
 import syncedPhotos from "../../src/data/photo-manifest.json"
@@ -32,6 +31,8 @@ const BOARD_ASSETS = [
   { id: "series-one", src: "/archive/assets/series-1.jpg", alt: "Breaking Bad", caption: "Breaking Bad", width: 128 },
   { id: "series-two", src: "/archive/assets/series-2.jpg", alt: "Dark", caption: "Dark", width: 128 },
   { id: "series-three", src: "/archive/assets/series-3.jpg", alt: "Loki", caption: "Loki", width: 128 },
+  { id: "series-four", src: "/archive/assets/series-4.jpg", alt: "Avatar: The Last Airbender", caption: "Avatar: The Last Airbender", width: 128 },
+  { id: "series-five", src: "/archive/assets/series-5.jpg", alt: "Better Call Saul", caption: "Better Call Saul", width: 128 },
   { id: "archive-logo", src: "/archive/assets/logo.svg", alt: "Andre Archive logo", caption: "Archive logo", width: 125 },
 ] as const
 
@@ -41,15 +42,17 @@ const ARTIFACT_POSITIONS = {
   bookDesignEverydayThings: { x: -875, y: -150, rotate: 15, z: 30 },
   bookAlmostAdulting: { x: 875, y: -400, rotate: 8, z: 30 },
   bookAtomicHabits: { x: -1100, y: 60, rotate: -4, z: 30 },
-  bookDetectiveConan: { x: 570, y: -620, rotate: -8, z: 30 },
+  bookDetectiveConan: { x: 570, y: -530, rotate: -8, z: 30 },
   letterboxdLogo: { x: 680, y: -300, rotate: 5, z: 30 },
   filmOppenheimer: { x: 300, y: 570, rotate: 4, z: 30 },
   filmGoodWillHunting: { x: -820, y: 145, rotate: -15, z: 30 },
   filmEternalSunshine: { x: 800, y: -105, rotate: -5, z: 30 },
-  filmForrestGump: { x:-550, y: 700, rotate: -4, z: 30 },
-  seriesOne: { x: -300, y: -560, rotate: -20, z: 30 },
+  filmForrestGump: { x:-500, y: 700, rotate: -4, z: 30 },
+  seriesOne: { x: -320, y: -560, rotate: -15, z: 30 },
   seriesTwo: { x: 50, y: 600, rotate: -7, z: 30 },
   seriesThree: { x: 240, y: -560, rotate: 15, z: 30 },
+  seriesFour: { x: -1250, y: -320, rotate: -15, z: 30 },
+  seriesFive: {  x: 1050, y: -105, rotate: 7, z: 30 },
   archiveLogo: { x: -1060, y: -135, rotate: 5, z: 30 },
   pokemonLogo: { x: -720, y: -320, rotate: -7, z: 40, width: 156 },
   pokemonCard: { x: -700, y: -520, rotate: 5, z: 40, width: 150 },
@@ -61,18 +64,20 @@ const ARTIFACT_POSITIONS = {
   albumMardyBum: { x: -720, y: 470, rotate: 15, z: 40, width: 200 },
   stampBali: { x: -1000, y: -445, rotate: 4, z: 30, width: 144 },
   photoPikachu: { x: 480, y: 250, rotate: 12, z: 30 },
-  albumGoodRiddance: { x: -20, y: -560, rotate: 20, z: 40, width: 200 },
+  albumGoodRiddance: { x: -20, y: -560, rotate: 15, z: 40, width: 200 },
   albumGemilang: { x: 800, y: 300, rotate: -10, z: 40, width: 200 },
-  albumEarrings: { x: -250, y: 600, rotate: -4, z: 40, width: 200 },
+  albumEarrings: { x: -220, y: 600, rotate: -4, z: 40, width: 200 },
+  albumWonderwall: { x: -1350, y: 50, rotate: 7, z: 40, width: 200 },
+  albumWhiteFerrari: { x: -1050, y: 380, rotate: -6, z: 40, width: 200 },
+  albumHighAndDry: { x: 700, y: 700, rotate: 5, z: 40, width: 200 },
   stickerFigma: { x: -450, y: -380, rotate: -6, z: 20 },
-  stickerCharizard: { x: 1080, y: -570, rotate: 8, z: 35, width: 120 },
-  scratchCard: { x: -1035, y: 425, rotate: -3, z: 36, width: 220 },
+  stickerCharizard: { x: 1080, y: -380, rotate: 8, z: 35, width: 120 },
   curiositySecret: { x: -845, y: 430, rotate: -4, z: 30, width: 190 },
 } as const
 
 const BOARD_ASSET_POSITION_KEYS = {
   book: "bookDesignEverydayThings", "book-two": "bookAlmostAdulting", "book-three": "bookAtomicHabits", "book-four": "bookDetectiveConan", letterboxd: "letterboxdLogo",
-  "movie-one": "filmOppenheimer", "movie-two": "filmGoodWillHunting", "movie-three": "filmEternalSunshine", "movie-four": "filmForrestGump", "series-one": "seriesOne", "series-two": "seriesTwo", "series-three": "seriesThree", "archive-logo": "archiveLogo",
+  "movie-one": "filmOppenheimer", "movie-two": "filmGoodWillHunting", "movie-three": "filmEternalSunshine", "movie-four": "filmForrestGump", "series-one": "seriesOne", "series-two": "seriesTwo", "series-three": "seriesThree", "series-four": "seriesFour", "series-five": "seriesFive", "archive-logo": "archiveLogo",
 } as const
 
 const RANDOMIZABLE_ASSETS = [
@@ -88,6 +93,9 @@ const RANDOMIZABLE_ASSETS = [
   { id: "song-two", ...ARTIFACT_POSITIONS.albumGoodRiddance },
   { id: "song-three", ...ARTIFACT_POSITIONS.albumGemilang },
   { id: "song-four", ...ARTIFACT_POSITIONS.albumEarrings },
+  { id: "song-five", ...ARTIFACT_POSITIONS.albumWonderwall },
+  { id: "song-six", ...ARTIFACT_POSITIONS.albumWhiteFerrari },
+  { id: "song-seven", ...ARTIFACT_POSITIONS.albumHighAndDry },
   { id: "bali-stamp", ...ARTIFACT_POSITIONS.stampBali },
   { id: "figma", ...ARTIFACT_POSITIONS.stickerFigma },
   { id: "charizard", ...ARTIFACT_POSITIONS.stickerCharizard },
@@ -456,7 +464,7 @@ export default function App() {
   const playbackRequest = useRef(0)
   const soundContextRef = useRef<AudioContext | null>(null)
   const track = tracks[trackIndex]
-  const BOARD_ARTIFACT_COUNT = BOARD_ASSETS.length + 23
+  const BOARD_ARTIFACT_COUNT = BOARD_ASSETS.length + 26
   const drag = useRef<{ active: boolean; pointerId: number; moved: boolean; sx: number; sy: number; ox: number; oy: number }>({
     active: false,
     pointerId: -1,
@@ -537,8 +545,8 @@ export default function App() {
       setAlbumSelected(false)
     }
   }, [audioMuted, disturb, playMicroSound])
-  const toggleAlbumPlayback = useCallback((nextTrackIndex = trackIndex) => {
-    const nextTrack = tracks[nextTrackIndex]
+  const toggleAlbumPlayback = useCallback((nextTrackId?: string) => {
+    const nextTrack = nextTrackId ? tracks.find((item) => item.id === nextTrackId) : tracks[trackIndex]
     if (nextTrack) void playTrack(nextTrack)
   }, [playTrack, trackIndex])
   const randomizeArchive = useCallback(() => {
@@ -769,8 +777,7 @@ export default function App() {
                 {SOCIAL_DESTINATIONS.map(({ icon, label, href }) => <a key={label} href={href} target={href.startsWith("http") ? "_blank" : undefined} rel={href.startsWith("http") ? "noreferrer" : undefined}><SocialIcon name={icon} />{label}</a>)}
               </div>
             </section>
-            <section className="identity-experience" aria-labelledby="experience-title">
-              <h2 id="experience-title">Experience <span aria-hidden="true">↓</span></h2>
+            <section className="identity-experience" aria-label="Experience">
               <ul>
                 {[
                   ["UI/UX Designer", "Sanata System · Full-time · 3 yrs", "Sep 2023 — Present"],
@@ -780,15 +787,6 @@ export default function App() {
               </ul>
             </section>
           </div>
-          {/* crop marks */}
-          {[
-            "-top-3 -left-3 border-t border-l",
-            "-top-3 -right-3 border-t border-r",
-            "-bottom-3 -left-3 border-b border-l",
-            "-bottom-3 -right-3 border-b border-r",
-          ].map((c) => (
-            <span key={c} className={`absolute h-4 w-4 border-white/40 ${c}`} />
-          ))}
         </div>
 
         {/* ===== POKÉMON — upper-left collectible ===== */}
@@ -800,7 +798,7 @@ export default function App() {
           <img src="/archive/assets/pokemon-card.png" alt="Pokemon trading card" className="board-image-pokemon-card" />
         </Artifact>
 
-        <Artifact {...layoutFor("song-three", ARTIFACT_POSITIONS.albumGemilang)} z={40} width={200} label="Gemilang · Perunggu" className="cursor-music" onOpen={() => void toggleAlbumPlayback(2)}>
+        <Artifact {...layoutFor("song-three", ARTIFACT_POSITIONS.albumGemilang)} z={40} width={200} label="Gemilang · Perunggu" className="cursor-music" onOpen={() => void toggleAlbumPlayback("song-three")}>
           <div className={`record-artifact ${activeTrackId === tracks[2].id ? "is-open" : ""} ${activeTrackId === tracks[2].id && audioPlaying ? "is-playing" : ""}`}>
             <div className="vinyl-record" aria-hidden="true"><span /></div>
             <div className="record-sleeve"><img src="/archive/assets/song-3.jpg" alt="Dalam Dinamika album cover" /></div>
@@ -865,24 +863,45 @@ export default function App() {
         </Artifact>
 
         {/* ===== Album and vinyl (lower-center) ===== */}
-        <Artifact {...layoutFor("mixtape", ARTIFACT_POSITIONS.albumMardyBum)} label="Mardy Bum · Arctic Monkeys" className="cursor-music" onOpen={() => void toggleAlbumPlayback(0)}>
+        <Artifact {...layoutFor("mixtape", ARTIFACT_POSITIONS.albumMardyBum)} label="Mardy Bum · Arctic Monkeys" className="cursor-music" onOpen={() => void toggleAlbumPlayback("arctic-monkeys-mardy-bum")}>
           <div className={`record-artifact ${activeTrackId === tracks[0].id ? "is-open" : ""} ${activeTrackId === tracks[0].id && audioPlaying ? "is-playing" : ""}`}>
             <div className="vinyl-record" aria-hidden="true"><span /></div>
             <div className="record-sleeve"><img src="/archive/assets/song-1.jpg" alt="Mardy Bum by Arctic Monkeys album cover" /></div>
           </div>
         </Artifact>
 
-        <Artifact {...layoutFor("song-two", ARTIFACT_POSITIONS.albumGoodRiddance)} z={40} width={200} label="Good Riddance · Green Day" className="cursor-music" onOpen={() => void toggleAlbumPlayback(1)}>
+        <Artifact {...layoutFor("song-two", ARTIFACT_POSITIONS.albumGoodRiddance)} z={40} width={200} label="Good Riddance · Green Day" className="cursor-music" onOpen={() => void toggleAlbumPlayback("green-day-good-riddance")}>
           <div className={`record-artifact ${activeTrackId === tracks[1].id ? "is-open" : ""} ${activeTrackId === tracks[1].id && audioPlaying ? "is-playing" : ""}`}>
             <div className="vinyl-record" aria-hidden="true"><span /></div>
             <div className="record-sleeve"><img src="/archive/assets/song-2.jpg" alt="Good Riddance album cover" /></div>
           </div>
         </Artifact>
 
-        <Artifact {...layoutFor("song-four", ARTIFACT_POSITIONS.albumEarrings)} z={40} width={200} label="Earrings - Malcolm Todd" className="cursor-music" onOpen={() => void toggleAlbumPlayback(3)}>
+        <Artifact {...layoutFor("song-four", ARTIFACT_POSITIONS.albumEarrings)} z={40} width={200} label="Earrings - Malcolm Todd" className="cursor-music" onOpen={() => void toggleAlbumPlayback("malcolm-todd-earrings")}>
           <div className={`record-artifact ${activeTrackId === tracks[3].id ? "is-open" : ""} ${activeTrackId === tracks[3].id && audioPlaying ? "is-playing" : ""}`}>
             <div className="vinyl-record" aria-hidden="true"><span /></div>
             <div className="record-sleeve"><img src="/archive/assets/song-4.jpg" alt="Earrings by Malcolm Todd album cover" /></div>
+          </div>
+        </Artifact>
+
+        <Artifact {...layoutFor("song-five", ARTIFACT_POSITIONS.albumWonderwall)} z={40} width={200} label="Wonderwall · Oasis" className="cursor-music" onOpen={() => void toggleAlbumPlayback("oasis-wonderwall")}>
+          <div className={`record-artifact ${activeTrackId === tracks[4].id ? "is-open" : ""} ${activeTrackId === tracks[4].id && audioPlaying ? "is-playing" : ""}`}>
+            <div className="vinyl-record" aria-hidden="true"><span /></div>
+            <div className="record-sleeve"><img src="/archive/assets/song-5.jpg" alt="Wonderwall by Oasis album cover" /></div>
+          </div>
+        </Artifact>
+
+        <Artifact {...layoutFor("song-six", ARTIFACT_POSITIONS.albumWhiteFerrari)} z={40} width={200} label="White Ferrari · Frank Ocean" className="cursor-music" onOpen={() => void toggleAlbumPlayback("frank-ocean-white-ferrari")}>
+          <div className={`record-artifact ${activeTrackId === tracks[5].id ? "is-open" : ""} ${activeTrackId === tracks[5].id && audioPlaying ? "is-playing" : ""}`}>
+            <div className="vinyl-record" aria-hidden="true"><span /></div>
+            <div className="record-sleeve"><img src="/archive/assets/song-6.jpg" alt="White Ferrari by Frank Ocean album cover" /></div>
+          </div>
+        </Artifact>
+
+        <Artifact {...layoutFor("song-seven", ARTIFACT_POSITIONS.albumHighAndDry)} z={40} width={200} label="High and Dry · Radiohead" className="cursor-music" onOpen={() => void toggleAlbumPlayback("radiohead-high-and-dry")}>
+          <div className={`record-artifact ${activeTrackId === tracks[6].id ? "is-open" : ""} ${activeTrackId === tracks[6].id && audioPlaying ? "is-playing" : ""}`}>
+            <div className="vinyl-record" aria-hidden="true"><span /></div>
+            <div className="record-sleeve"><img src="/archive/assets/song-7.jpg" alt="High and Dry by Radiohead album cover" /></div>
           </div>
         </Artifact>
 
@@ -902,11 +921,6 @@ export default function App() {
         {/* ===== Sticker cluster: tech identity ===== */}
         <Sticker id="figma" x={assetLayout.figma?.x ?? ARTIFACT_POSITIONS.stickerFigma.x} y={assetLayout.figma?.y ?? ARTIFACT_POSITIONS.stickerFigma.y} rotate={assetLayout.figma?.rotate ?? ARTIFACT_POSITIONS.stickerFigma.rotate} imageSrc="/archive/assets/figma-sticker.png" label="figma" movable onClick={() => { discover("figma"); playMicroSound("ui") }} onDisturb={() => disturb("figma-drag")} />
         <Sticker id="charizard" x={assetLayout.charizard?.x ?? ARTIFACT_POSITIONS.stickerCharizard.x} y={assetLayout.charizard?.y ?? ARTIFACT_POSITIONS.stickerCharizard.y} rotate={assetLayout.charizard?.rotate ?? ARTIFACT_POSITIONS.stickerCharizard.rotate} imageSrc="/archive/assets/charizard.png" label="charizard" movable onClick={() => { discover("charizard"); playMicroSound("card") }} onDisturb={() => disturb("charizard-drag")} />
-
-        {/* ===== Playful archive interactions ===== */}
-        <Artifact {...ARTIFACT_POSITIONS.scratchCard} label="Scratch card">
-          <ScratchCard onDiscover={() => disturb("scratch-card")} onSound={() => playMicroSound("card")} />
-        </Artifact>
 
         {/* ===== User-supplied archive assets ===== */}
         {BOARD_ASSETS.map((asset) => {
@@ -935,7 +949,7 @@ export default function App() {
           {[
             ["Home", !galleryOpen && !puzzleOpen],
             ["Photos", galleryOpen],
-            ["Puzzle", puzzleOpen],
+            ["Mini Games", puzzleOpen],
           ].map(([label, active]) => (
             <button
               key={label as string}
@@ -946,7 +960,7 @@ export default function App() {
               aria-current={active ? "page" : undefined}
               onClick={() => {
                 if (label === "Home") { closeGallery(); closePuzzle(); setPanel(null); resetHomePosition() }
-                else if (label === "Puzzle") { closeGallery(); setPuzzleOpen(true) }
+                else if (label === "Mini Games") { closeGallery(); setPuzzleOpen(true) }
                 else if (label === "Photos") { closePuzzle(); setGalleryOpen(true) }
               }}
               className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[11px] transition ${
@@ -959,7 +973,7 @@ export default function App() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   {label === "Home" && <><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10Z" /><path d="M9 21v-7h6v7" /></>}
                   {label === "Photos" && <><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="8.5" cy="9" r="1.5" /><path d="m4 17 5-5 3.5 3.5 2.5-2.5 5 5" /></>}
-                  {label === "Puzzle" && <path d="M9 3H4v6a3 3 0 1 1 0 6v6h6a3 3 0 1 1 6 0h5v-6a3 3 0 1 0 0-6V3h-6a3 3 0 1 0-6 0Z" />}
+                  {label === "Mini Games" && <path d="M9 3H4v6a3 3 0 1 1 0 6v6h6a3 3 0 1 1 6 0h5v-6a3 3 0 1 0 0-6V3h-6a3 3 0 1 0-6 0Z" />}
                 </svg>
               </span>
               {active && <span className="tracking-wide">{label}</span>}
