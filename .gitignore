@@ -5,5 +5,11 @@ dist/
 build/
 *.tsbuildinfo
 .env*
+!.env.example
 *.log
 /public/archive/photos/
+.next-studio/
+.next-studio-build/
+.studio-validation/
+test-results/
+playwright-report/

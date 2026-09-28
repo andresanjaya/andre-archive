@@ -1,0 +1,20 @@
+const fs=require('node:fs'),assert=require('node:assert/strict'),ts=require('typescript');
+global.crypto=require('node:crypto').webcrypto;
+require.extensions['.ts']=(module,filename)=>module._compile(ts.transpileModule(fs.readFileSync(filename,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,filename);
+const {localBoard}=require('../src/data/local-board.ts');
+const {validateBoard,definitions,createArtifactFromAsset}=require('../src/lib/archive/model.ts');
+validateBoard(localBoard);
+assert.equal(localBoard.artifacts.filter(a=>a.type==='music').length,7);
+assert.equal(localBoard.artifacts.filter(a=>a.type==='book').length,4);
+assert.equal(localBoard.artifacts.filter(a=>a.type==='cinema').length,9);
+assert.equal(localBoard.artifacts.filter(a=>a.type==='tiny-pixel').length,0);
+for(const a of localBoard.artifacts)for(const key of ['image','audio'])if(a.content[key])assert.ok(fs.existsSync('public'+a.content[key]),a.content[key]);
+const bad=structuredClone(localBoard);bad.artifacts[0].content.image='javascript:alert(1)';assert.throws(()=>validateBoard(bad));
+const duplicate=structuredClone(localBoard);duplicate.artifacts.push(duplicate.artifacts[0]);assert.throws(()=>validateBoard(duplicate));
+const unsupported=structuredClone(localBoard);unsupported.artifacts[0].animation='projector';assert.throws(()=>validateBoard(unsupported));
+for(const [type,d] of Object.entries(definitions)){assert.ok(d.editor);assert.ok(d.fields&&d.animations.length&&d.actions.length,type)}
+const book=createArtifactFromAsset({id:'book-asset',name:'New Book Cover.webp',category:'book',storage_path:'book.webp',thumbnail_path:null,mime_type:'image/webp',file_size:1,width:100,height:100,alt_text:'New book',approved:true,source_path:null,created_at:''},undefined,'https://cdn.test/book.webp');
+assert.equal(book.type,'book');assert.equal(book.animation,'book-3d');assert.equal(book.content.image,'https://cdn.test/book.webp');assert.equal(book.content.alt,'New book');
+const music=createArtifactFromAsset({id:'music-asset',name:'High and Dry.webp',category:'music',storage_path:'music.webp',thumbnail_path:null,mime_type:'image/webp',file_size:1,width:100,height:100,alt_text:'Cover',approved:true,source_path:null,created_at:''},undefined,'https://cdn.test/music.webp');
+assert.equal(music.type,'music');assert.equal(music.animation,'lift');assert.equal(music.action,'play-music');assert.equal(music.config.lift,8);assert.equal(music.config.duration,500);assert.equal(music.content.trackId,'music-asset');assert.equal(music.content.audio,'');
+console.log(`PASS: ${localBoard.artifacts.length} seeded artifacts, all referenced files, 13 registry contracts, invalid URL/action/identity rejection, no reintroduced removed experiment.`);

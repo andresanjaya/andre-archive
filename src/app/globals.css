@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @source "../../figma_make/src";
+@source "../components/archive";
 
 :root {
   --mat: #1f6b50;
@@ -151,6 +152,10 @@ input:focus-visible {
 /* Perspective belongs on the direct parent; the rotating book must not
    use isolation, opacity, filters or clipping (these flatten its faces). */
 .book-artifact-scene { position: relative; width: 100%; perspective: 600px; perspective-origin: 50% 45%; }
+.archive-loading { min-height: 100svh; display: grid; place-content: center; gap: 14px; color: #f8f2df; background-color: #1f6b50; background-image: linear-gradient(#ffffff12 1px, transparent 1px), linear-gradient(90deg, #ffffff12 1px, transparent 1px); background-size: 26px 26px; font: 600 11px/1.2 var(--font-plus-jakarta), sans-serif; letter-spacing: .18em; text-align: center; }
+.archive-loading i { width: 42px; height: 2px; margin: auto; overflow: hidden; background: #ffffff33; border-radius: 999px; }
+.archive-loading i::after { content: ''; display: block; width: 42%; height: 100%; background: #f7c84a; animation: archive-loading 1.1s ease-in-out infinite alternate; }
+@keyframes archive-loading { from { transform: translateX(-100%); } to { transform: translateX(240%); } }
 .book-artifact { --half-cover: 15px; --page-depth: calc(var(--half-cover) * 2); position: relative; width: 100%; aspect-ratio: 168 / 249; transform-style: preserve-3d; transform-origin: left center; transform: rotateY(0deg); transition: transform 300ms ease-out; animation: book-init 1s ease 1; }
 .book-artifact-scene:has(img[src$="book-1.jpg"]) { --book-color: #d6af24; }
 .book-artifact-scene:has(img[src$="book-2.jpg"]) { --book-color: #cc922c; }
@@ -290,8 +295,9 @@ input:focus-visible {
 .photo-gallery-grid button:hover img, .photo-gallery-grid button:focus-visible img { transform: scale(1.035); filter: brightness(1.07); }
 .gallery-carousel { position: fixed; inset: 0; z-index: 100; padding: 42px max(5vw, 24px); background: #101113; touch-action: pan-y; }
 .gallery-carousel-track { display: grid; grid-template-columns: 1fr 1.75fr 1fr; gap: 20px; width: 100%; max-width: 1700px; height: 100%; margin: 0 auto; }
-.gallery-carousel-slide { min-width: 0; height: 100%; overflow: hidden; border-radius: 12px; }
+.gallery-carousel-slide { position:relative;min-width: 0; height: 100%; overflow: hidden; border-radius: 12px; }
 .gallery-carousel-slide img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.gallery-carousel-meta{position:absolute;left:14px;right:14px;bottom:14px;display:grid;gap:3px;padding:12px 14px;border-radius:8px;background:rgba(12,16,19,.78);color:#fff;backdrop-filter:blur(8px)}.gallery-carousel-meta span,.gallery-carousel-meta small{font-size:11px;color:rgba(255,255,255,.76)}
 .gallery-carousel-prev, .gallery-carousel-next { position: absolute; z-index: 2; top: 50%; width: 42px; height: 42px; border: 0; border-radius: 50%; color: white; background: #111; cursor: pointer; font: 23px/1 var(--font-sans); transform: translateY(-50%); }
 .gallery-carousel-prev { left: max(5vw, 24px); }
 .gallery-carousel-next { right: max(5vw, 24px); }
@@ -347,6 +353,24 @@ input:focus-visible {
 @keyframes playing-pulse { 50% { box-shadow: 0 0 0 8px rgba(82,215,149,0); } }
 
 .mobile-archive { display: none; }
+
+/* Registry options preserve each renderer's default geometry. */
+.cms-no-entrance .archive-entrance { animation: none; }
+.cms-no-hover.book-artifact-group:hover .book-artifact,
+.cms-edit-artifact.book-artifact-group:hover .book-artifact { transform: rotateY(0deg); }
+.cms-no-hover.projector-poster-group:hover .projector-poster,
+.cms-edit-artifact.projector-poster-group:hover .projector-poster,
+.cms-no-hover.projector-poster-group:hover .projector-poster-image,
+.cms-edit-artifact.projector-poster-group:hover .projector-poster-image { transform: none; filter: none; }
+.cms-no-hover .projector-light-sweep, .cms-edit-artifact .projector-light-sweep { animation: none !important; opacity: 0 !important; }
+.cms-artifact:not(.book-artifact-group):not(.projector-poster-group) { transition-duration: var(--cms-duration, 500ms); }
+.cms-type-pokemon .pokemon-asset { width: 100%; height: auto; }
+.cms-artifact .cms-sized-content .board-image-asset,
+.cms-artifact .cms-sized-content .board-image-pokemon-card { height: var(--cms-height, auto); object-fit: contain; }
+.cms-type-book .cms-sized-content .book-artifact { height: var(--cms-height, auto); }
+.cms-type-cinema .cms-sized-content .projector-poster-image { height: var(--cms-height, auto); object-fit: cover; }
+.cms-type-sticker:not(.cms-no-hover):hover .archive-sticker:not(.is-moving) { translate: 0 calc(-1 * var(--cms-lift, 8px)); }
+.cms-type-sticker .archive-sticker { transition-duration: var(--cms-duration, 500ms); }
 
 @media (max-width: 1100px) and (min-width: 768px) {
   .archive-plane { --board-scale: .72; transform-origin: center; }

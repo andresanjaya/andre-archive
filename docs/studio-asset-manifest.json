@@ -1,0 +1,479 @@
+[
+  {
+    "source_path": "/archive/assets/profile.jpg",
+    "bytes": 2364913,
+    "sha256": "96427f640e31214e0eaa025107713e5848131e8f1b4e9b0c64f729a5987e4266",
+    "uses": [
+      "board:identity"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/book-1.jpg",
+    "bytes": 22416,
+    "sha256": "5975849f59828eb7633cc19851e7552304f8058566e911bdd7381ce2907200c5",
+    "uses": [
+      "board:book"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/book-2.jpg",
+    "bytes": 364340,
+    "sha256": "f828a3e73092b83b88cf19d9a9c036e8c46cb101d6fddb58c848ac05dead62f0",
+    "uses": [
+      "board:book-two"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/book-3.jpg",
+    "bytes": 76880,
+    "sha256": "14f4c8956a47389c6e7d597eab67d33d9de7859ba1fb5242703190b9e431ed2f",
+    "uses": [
+      "board:book-three"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/book-4.jpg",
+    "bytes": 224674,
+    "sha256": "4f739296a5e1b185eddaf911e041588d8e885bc99c2edce9963c70a7fec88b63",
+    "uses": [
+      "board:book-four"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/letterboxd.png",
+    "bytes": 167450,
+    "sha256": "ed0be3bc8086d861c3dba102ce4025d47ceb501234158547b11c14e517b2f41e",
+    "uses": [
+      "board:letterboxd"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/movie-1.jpg",
+    "bytes": 989245,
+    "sha256": "bcab4b377a535eb974e8256b4ee3d605456b8ab65e300262f1a4cdf0fa068f79",
+    "uses": [
+      "board:movie-one"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/movie-2.jpg",
+    "bytes": 293946,
+    "sha256": "3691e5453509ced71fff2fef3a54203ba4d927d70c79c240f87d0a7531e80408",
+    "uses": [
+      "board:movie-two"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/movie-3.jpg",
+    "bytes": 371942,
+    "sha256": "f620ba7735ae0b6abb9636ac9d6a00a1b2bb1d5ff48cab41b16e1a12a7d7ad1f",
+    "uses": [
+      "board:movie-three"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/movie-4.jpg",
+    "bytes": 38250,
+    "sha256": "fa9a61533d7e93eddb61d69fbe3790f70d796216cbf4252a7a60bd619be17ac5",
+    "uses": [
+      "board:movie-four"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/series-1.jpg",
+    "bytes": 262259,
+    "sha256": "93e8985542384c2731989ecf228a3cdeec73d2571f9515d4e37df2a5a5133d62",
+    "uses": [
+      "board:series-one"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/series-2.jpg",
+    "bytes": 702475,
+    "sha256": "49fc8006d2e196694bd77258fca1612efc5ed4bdf70270c146b8d2d7ce8d15aa",
+    "uses": [
+      "board:series-two"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/series-3.jpg",
+    "bytes": 202681,
+    "sha256": "92b740184fed29e2ba52942c733e63bb8e2e78d499a050871b9eff037f27df84",
+    "uses": [
+      "board:series-three"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/series-4.jpg",
+    "bytes": 74313,
+    "sha256": "806e55eca50f69b92fb424023f8aea19ac4f43049a2a01fa2de315f314b6c748",
+    "uses": [
+      "board:series-four"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/series-5.jpg",
+    "bytes": 241555,
+    "sha256": "cda52ff21b936c2b1159d41c703ba152b3dcbef59eb646f8b17393a0eb488cfb",
+    "uses": [
+      "board:series-five"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/logo.svg",
+    "bytes": 547,
+    "sha256": "f1e9332cf504090a175f3e6115439bb52b6635f5755196f2341dd3a1372419fd",
+    "uses": [
+      "board:archive-logo"
+    ],
+    "migration": "retain local (audio or SVG); no arbitrary format upload"
+  },
+  {
+    "source_path": "/archive/assets/pokemon.png",
+    "bytes": 391622,
+    "sha256": "0103f37e226c13a2e1ecd4f0f3222d5bb02dc954cfe5c0da5d6e3924c62ed077",
+    "uses": [
+      "board:pokemon"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/pokemon-card.png",
+    "bytes": 3319595,
+    "sha256": "6d8f69683629000eb6793801741d077b5a0b6fe80429638441f9c27385b92f22",
+    "uses": [
+      "board:pokemon-card"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/marvel.png",
+    "bytes": 64665,
+    "sha256": "52b5da90ddeea9ea4e8d8067a115028c4b0502f5d7417dc27a191ec6bd9c3ba9",
+    "uses": [
+      "board:marvel"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/spiderman.png",
+    "bytes": 209619,
+    "sha256": "46ca18056f1b91ebf07672b40f06421c58300c5ca9fbc1e4e8a133804e0d9920",
+    "uses": [
+      "board:spiderman"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/pict-1.jpg",
+    "bytes": 8817766,
+    "sha256": "4cdf86680d2b572f41cd305c1208f899ff156128994428e2284699275540f067",
+    "uses": [
+      "board:pict-one"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/pict-2.png",
+    "bytes": 289282,
+    "sha256": "ba9c3b46ce44141d4c6942737579b4fb08adf9f64d763f6b4546a4ee67fb5f10",
+    "uses": [
+      "board:pict-two"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/pict-4.jpeg",
+    "bytes": 2394782,
+    "sha256": "5d68c7525b1c902e2ff5ba9421e00d2d5f9203c76f3fa5046a14e73304e4512c",
+    "uses": [
+      "board:pict-four"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/profile2.png",
+    "bytes": 95724,
+    "sha256": "34692c97e73d8017fb595f91d76d8f69ad41e08cb1f9cc385aefa257a52d0459",
+    "uses": [
+      "board:pict-five"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/song-1.jpg",
+    "bytes": 44004,
+    "sha256": "6e1c8f5d97ef718d0549bc2792b8dab740fff57055542b5a41a2528b3eda4414",
+    "uses": [
+      "board:mixtape"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/audio/song-1.mp3",
+    "bytes": 7078190,
+    "sha256": "9b082e8a2ff7cc781c5da3d9e1f78357896e2188ed484cf1473fb8640bd03f25",
+    "uses": [
+      "audio:mixtape"
+    ],
+    "migration": "retain local (audio or SVG); no arbitrary format upload"
+  },
+  {
+    "source_path": "/archive/assets/song-2.jpg",
+    "bytes": 110129,
+    "sha256": "d87887fcc8820507b6a594db83af0bae9c2dab50d22999c35a7652d6df7a6aac",
+    "uses": [
+      "board:song-two"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/audio/song-2.mp3",
+    "bytes": 6221574,
+    "sha256": "f7853ab26fae412572b343c18e1e5f8f68776ab4340eb01e6ba62c0b1f05e862",
+    "uses": [
+      "audio:song-two"
+    ],
+    "migration": "retain local (audio or SVG); no arbitrary format upload"
+  },
+  {
+    "source_path": "/archive/assets/song-3.jpg",
+    "bytes": 73430,
+    "sha256": "24917cee9cc913515b2f011060b688029b0b4c6b134c0659858d403064d2c525",
+    "uses": [
+      "board:song-three"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/audio/song-3.mp3",
+    "bytes": 4879475,
+    "sha256": "ceb59927c2eb1464af139ee0aa0701d6d5e10a007db1ddd3832b068a25b12fdf",
+    "uses": [
+      "audio:song-three"
+    ],
+    "migration": "retain local (audio or SVG); no arbitrary format upload"
+  },
+  {
+    "source_path": "/archive/assets/song-4.jpg",
+    "bytes": 165274,
+    "sha256": "b6c3b8817a9b063984de08b05bc9398f49d27dc67f9cc806527a89b6169af336",
+    "uses": [
+      "board:song-four"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/audio/song-4.mp3",
+    "bytes": 2626234,
+    "sha256": "968230b57f324f79f1cc3cab413afc3f2623749655301e6d260b31678d785944",
+    "uses": [
+      "audio:song-four"
+    ],
+    "migration": "retain local (audio or SVG); no arbitrary format upload"
+  },
+  {
+    "source_path": "/archive/assets/song-5.jpg",
+    "bytes": 169740,
+    "sha256": "83397e901e63615af9e43b40a0d372fd4a66acc7eebe7de1ca5baee3fa172dc0",
+    "uses": [
+      "board:song-five"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/audio/song-5.mp3",
+    "bytes": 4329494,
+    "sha256": "c0eef65ef74fa5aef3d01ba10915341147b9675ed6540de53197a12dadee7e7d",
+    "uses": [
+      "audio:song-five"
+    ],
+    "migration": "retain local (audio or SVG); no arbitrary format upload"
+  },
+  {
+    "source_path": "/archive/assets/song-6.jpg",
+    "bytes": 82045,
+    "sha256": "c04555a2e4b1f29e20b94723eb08cbb698dff5ee0614eb7350d9ddc908b560e1",
+    "uses": [
+      "board:song-six"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/audio/song-6.mp3",
+    "bytes": 3604089,
+    "sha256": "a0482efcba75198f998a8d3cae063fa2e95e29c666cc6d78ea0f8c563db348bc",
+    "uses": [
+      "audio:song-six"
+    ],
+    "migration": "retain local (audio or SVG); no arbitrary format upload"
+  },
+  {
+    "source_path": "/archive/assets/song-7.jpg",
+    "bytes": 33866,
+    "sha256": "2e8ede19197721eeee6bb97d3bdf5bb9a5d734849968000920112d01fbc39d52",
+    "uses": [
+      "board:song-seven"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/audio/song-7.mp3",
+    "bytes": 4252882,
+    "sha256": "ad6e7b957590044ada6bb7c990aa3446d8a6c7bbe8f9e174fe761bd1afddfa4c",
+    "uses": [
+      "audio:song-seven"
+    ],
+    "migration": "retain local (audio or SVG); no arbitrary format upload"
+  },
+  {
+    "source_path": "/archive/assets/bali-postcard.png",
+    "bytes": 5522,
+    "sha256": "9b5c012c3223badc5f10b23a13c167df4d744ea2e38232387a80cadc9cd8ed09",
+    "uses": [
+      "board:bali-stamp"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/figma-sticker.png",
+    "bytes": 125181,
+    "sha256": "b2d336512e579db5edcc0e8b3376455ca4ff631858515a9fe22f4f6647dfb9d5",
+    "uses": [
+      "board:figma"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/assets/charizard.png",
+    "bytes": 279031,
+    "sha256": "c9884f6efbd892a0b2bd135b4cadc8855f27ad8ddd56639bdfbf953aa90ce315",
+    "uses": [
+      "board:charizard"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/photos/IMG1.png",
+    "bytes": 9033213,
+    "sha256": "e22ff97bd743538e387fb375f5b6a3688f6a4fb5cf1b674ae4726ebaac84e81c",
+    "uses": [
+      "photos"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/photos/IMG2.png",
+    "bytes": 11218178,
+    "sha256": "2da6a8ad4a4613a2180ae722c47f5f0674f825a5e2635d61148ba2c1cc2631ab",
+    "uses": [
+      "photos"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/photos/IMG3.png",
+    "bytes": 6577183,
+    "sha256": "f2a80a974b2e9b5a501677d603b5b26430f633ec3030b692562f9f92f1db3cdb",
+    "uses": [
+      "photos"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/photos/IMG4.png",
+    "bytes": 16358700,
+    "sha256": "306f42ef3373fcd00d9167bffd81b17084f6fb611bfd14d9e34b74c9b75b87e7",
+    "uses": [
+      "photos"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/photos/IMG5.png",
+    "bytes": 17864464,
+    "sha256": "9eaaf757c8baad195ed5334324913f764e78d906324b45431bd3d2e62d59f17f",
+    "uses": [
+      "photos"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/photos/IMG6.png",
+    "bytes": 19322624,
+    "sha256": "53358e924cc1c12499a30c731db519f2978f69dbb20f2f48546335bc81190f3e",
+    "uses": [
+      "photos"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/photos/IMG7.png",
+    "bytes": 8904475,
+    "sha256": "d7b61153de376e502d3a48a2bf127ab7fabd887bca0e23e627f8d3dc1488842a",
+    "uses": [
+      "photos"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/photos/IMG8.png",
+    "bytes": 9783079,
+    "sha256": "c901d4d6a997626af1530716f1d10bd2dc799d7eaed7db77c3ef2985f5aa9fb0",
+    "uses": [
+      "photos"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/photos/IMG9.png",
+    "bytes": 9979252,
+    "sha256": "124688cb576430373b759661015b5b7bad74d8423f3144050fb41722b7e7aa6f",
+    "uses": [
+      "photos"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/puzzle/puzzle1.jpg",
+    "bytes": 3506068,
+    "sha256": "0403529ec3f8ec8ef9900fd6c49b341da6235a07a9a8a44f75e628b93980e07d",
+    "uses": [
+      "puzzle"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/puzzle/puzzle2.jpg",
+    "bytes": 5545153,
+    "sha256": "bbd4df2538ef9e7e34ea9f415ec4f60c4007a841cb757f7d1f94da42910e0103",
+    "uses": [
+      "puzzle"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  },
+  {
+    "source_path": "/archive/puzzle/puzzle3.jpg",
+    "bytes": 5229449,
+    "sha256": "422e22a2cfefa7e999c9ed98099891cb11c3a36d13bce49c1a4d3f2cbd1a9714",
+    "uses": [
+      "puzzle"
+    ],
+    "migration": "optimized private upload; explicit public approval"
+  }
+]

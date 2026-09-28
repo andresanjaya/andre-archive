@@ -2,11 +2,9 @@
 
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
-import manifest from '../../data/puzzle-manifest.json';
-const images: { src: string; title: string }[] = manifest;
 import { DIFFICULTIES, Difficulty, isSolved, shuffleTiles, swapTiles } from './puzzle-model';
 
-export default function PicturePuzzle({ onClose, lightMode }: { onClose: () => void; lightMode: boolean }) {
+export default function PicturePuzzle({ onClose, lightMode, images = [] }: { onClose: () => void; lightMode: boolean; images?: {src:string;title:string;alt_text?:string}[] }) {
   const [difficulty, setDifficulty] = useState<Difficulty>('Easy');
   const [imageIndex, setImageIndex] = useState(0);
   const [tiles, setTiles] = useState(() => shuffleTiles(3));
@@ -80,7 +78,7 @@ export default function PicturePuzzle({ onClose, lightMode }: { onClose: () => v
     if (event.key === 'Escape') { if (preview) setPreview(false); else onClose(); }
   }}>
     <div className="puzzle-content">
-      {!source ? <p>Add images to assets/puzzle to begin.</p> : <>
+      {!source ? <p>There are no published puzzle images yet.</p> : <>
         <div className="puzzle-stage" style={{ width: `min(100%, 680px, ${74 * ratio}svh)`, aspectRatio: ratio, ['--stage-width-mobile' as string]: `${45 * ratio}svh` }}>
           {!ready ? <p role="status">{failed ? 'This image could not be loaded. Try New Image.' : 'Loading picture…'}</p> : <div className={`puzzle-grid ${solved ? 'is-solved' : ''}`} style={{ gridTemplateColumns: `repeat(${size}, 1fr)` }} onPointerMove={event => {
             const current = gesture.current;
