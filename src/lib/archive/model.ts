@@ -1,7 +1,7 @@
-export const artifactTypes = ['identity', 'book', 'cinema', 'polaroid', 'music', 'sticker', 'pokemon', 'marvel', 'stamp', 'decoration', 'secret', 'tiny-pixel', 'puzzle'] as const;
+export const artifactTypes = ['identity', 'book', 'card', 'cinema', 'polaroid', 'music', 'sticker', 'pokemon', 'marvel', 'stamp', 'decoration', 'secret', 'tiny-pixel', 'puzzle'] as const;
 export type ArtifactType = typeof artifactTypes[number];
 export type Animation = 'lift' | 'book-3d' | 'projector' | 'none';
-export type Action = 'none' | 'disturb' | 'discover' | 'sound' | 'play-music' | 'open-puzzle';
+export type Action = 'none' | 'disturb' | 'discover' | 'sound' | 'play-music' | 'open-puzzle' | 'flip-card';
 export type ArtifactRecord = {
   id: string; key: string; name: string; type: ArtifactType; asset_id: string | null;
   content: Record<string, string>; x: number; y: number; width: number; height: number | null;
@@ -16,6 +16,7 @@ export const defaultSettings: BoardSettings = { background: '#1f6b50', grid: tru
 export const definitions: Record<ArtifactType, ArtifactDefinition> = {
   identity: {fields:['image','intro'], animations:['none'],actions:['none'],width:500,layer:50,editor:true,defaultContent:{}},
   book: {fields:['image','alt','color'],animations:['book-3d','none'],actions:['disturb','none','sound'],width:108,layer:30,editor:true,defaultContent:{color:'#353f53'}},
+  card: {fields:['front_asset_id','back_asset_id','front_image','back_image','front_alt','back_alt'],animations:['none'],actions:['flip-card'],width:160,layer:30,editor:true,defaultContent:{front_asset_id:'',back_asset_id:'',front_image:'',back_image:'',front_alt:'',back_alt:''},defaultConfig:{duration:680}},
   cinema: {fields:['image','alt'],animations:['projector','none'],actions:['sound','none'],width:134,layer:30,editor:true},
   polaroid: {fields:['image','caption','year','location','fit','focus'],animations:['lift','none'],actions:['none','sound'],width:205,layer:30,editor:true},
   music: {fields:['image','trackId','title','artist','audio'],animations:['lift','none'],actions:['play-music','none'],width:200,layer:40,editor:true,defaultContent:{trackId:'',title:'',artist:'',audio:''},defaultConfig:{lift:8,duration:500}},
@@ -39,13 +40,14 @@ export function validateBoard(board: BoardSnapshot): void {
     if (!d.animations.includes(a.animation) || !d.actions.includes(a.action)) throw new Error(`Unsupported interaction: ${a.name}`);
     if (![a.x,a.y,a.width,a.rotate,a.z].every(Number.isFinite) || a.width < 24 || a.width > 2000 || Math.abs(a.x)>10000 || Math.abs(a.y)>10000 || Math.abs(a.rotate)>360 || a.z<0 || a.z>1000 || (a.height !== null && (!Number.isFinite(a.height)||a.height<24||a.height>2000))) throw new Error(`Invalid layout: ${a.name}`);
     if (typeof a.visible !== 'boolean' || typeof a.locked !== 'boolean' || !a.content || Object.keys(a.content).some(k=>!d.fields.includes(k)) || Object.values(a.content).some(v=>typeof v!=='string'||v.length>10000)) throw new Error(`Invalid content: ${a.name}`);
-    for (const field of ['image','audio']) if (a.content[field] && !safeMedia(a.content[field])) throw new Error('Media must use a local archive path or HTTPS.');
+    for (const field of ['image','audio','front_image','back_image']) if (a.content[field] && !safeMedia(a.content[field])) throw new Error('Media must use a local archive path or HTTPS.');
+    if (a.type==='card' && (!a.content.front_asset_id || !a.content.back_asset_id || !a.content.front_image || !a.content.back_image)) throw new Error(`Card requires approved front and back assets: ${a.name}`);
     if (!a.config || Object.keys(a.config).some(k=>!['duration','lift'].includes(k)) || (a.config.duration !== undefined && (!Number.isFinite(a.config.duration)||a.config.duration<100||a.config.duration>2000)) || (a.config.lift !== undefined && (!Number.isFinite(a.config.lift)||a.config.lift<0||a.config.lift>30))) throw new Error('Invalid animation parameters.');
   }
   const s=board.settings;
   if (!s || !/^#[a-f\d]{6}$/i.test(s.background) || typeof s.grid!=='boolean' || typeof s.entrance!=='boolean' || ![s.initialX,s.initialY].every(v=>Number.isFinite(v)&&Math.abs(v)<=10000)) throw new Error('Invalid board settings.');
 }
-export const assetCategoryDefaultArtifactType: Record<string,ArtifactType> = {photography:'polaroid',sticker:'sticker',pokemon:'pokemon',marvel:'marvel',music:'music',cinema:'cinema',book:'book',decoration:'decoration',puzzle:'puzzle'};
+export const assetCategoryDefaultArtifactType: Record<string,ArtifactType> = {photography:'polaroid',sticker:'sticker',pokemon:'pokemon',marvel:'marvel',music:'music',cinema:'cinema',book:'book',card:'card',decoration:'decoration',puzzle:'puzzle'};
 export function newArtifact(type: ArtifactType): ArtifactRecord {
   const d=definitions[type], id=crypto.randomUUID();
   return {id,key:id,name:`New ${type}`,type,asset_id:null,content:{...(d.defaultContent||{})},x:0,y:0,width:d.width,height:null,rotate:0,z:d.layer,visible:true,locked:false,animation:d.animations[0],action:d.actions[0],config:{...(d.defaultConfig||{})}};
@@ -54,7 +56,7 @@ export function createArtifactFromAsset(asset: AssetRecord, requestedType?: Arti
   const type=requestedType||assetCategoryDefaultArtifactType[asset.category]||'decoration';
   const artifact=newArtifact(type);
   const image=mediaUrl||'';
-  const content: Record<string,string>={...artifact.content,image};
+  const content: Record<string,string>=type==='card'?{...artifact.content,front_asset_id:asset.id,front_image:image,front_alt:asset.alt_text||asset.name}:{...artifact.content,image};
   if (type==='book'||type==='cinema'||type==='decoration') content.alt=asset.alt_text||asset.name;
   if (type==='music') { content.trackId=asset.id; content.title=asset.name.replace(/\.[^.]+$/,''); content.artist=''; content.audio=''; }
   return {...artifact,name:asset.name,asset_id:asset.id,content};
@@ -64,5 +66,6 @@ export function convertArtifactType(artifact: ArtifactRecord, nextType: Artifact
   const next=newArtifact(nextType), shared={image:artifact.content.image,alt:artifact.content.alt};
   const content={...next.content,...Object.fromEntries(Object.entries(shared).filter(([,value])=>typeof value==='string'&&value))};
   if (nextType==='music') { content.trackId=artifact.content.trackId||artifact.id; content.title=artifact.content.title||artifact.name; content.artist=artifact.content.artist||''; content.audio=artifact.content.audio||''; }
+  if (nextType==='card') { content.front_asset_id=artifact.asset_id||''; content.front_image=artifact.content.image||''; content.front_alt=artifact.content.alt||artifact.name; }
   return {...next,id:artifact.id,key:artifact.key,name:artifact.name,asset_id:artifact.asset_id,x:artifact.x,y:artifact.y,width:artifact.width,height:artifact.height,rotate:artifact.rotate,z:artifact.z,visible:artifact.visible,locked:artifact.locked,content};
 }

@@ -2,7 +2,7 @@ const fs=require('node:fs'),assert=require('node:assert/strict'),ts=require('typ
 global.crypto=require('node:crypto').webcrypto;
 require.extensions['.ts']=(module,filename)=>module._compile(ts.transpileModule(fs.readFileSync(filename,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,filename);
 const {localBoard}=require('../src/data/local-board.ts');
-const {validateBoard,definitions,createArtifactFromAsset}=require('../src/lib/archive/model.ts');
+const {validateBoard,definitions,createArtifactFromAsset,newArtifact}=require('../src/lib/archive/model.ts');
 validateBoard(localBoard);
 assert.equal(localBoard.artifacts.filter(a=>a.type==='music').length,7);
 assert.equal(localBoard.artifacts.filter(a=>a.type==='book').length,4);
@@ -15,6 +15,9 @@ const unsupported=structuredClone(localBoard);unsupported.artifacts[0].animation
 for(const [type,d] of Object.entries(definitions)){assert.ok(d.editor);assert.ok(d.fields&&d.animations.length&&d.actions.length,type)}
 const book=createArtifactFromAsset({id:'book-asset',name:'New Book Cover.webp',category:'book',storage_path:'book.webp',thumbnail_path:null,mime_type:'image/webp',file_size:1,width:100,height:100,alt_text:'New book',approved:true,source_path:null,created_at:''},undefined,'https://cdn.test/book.webp');
 assert.equal(book.type,'book');assert.equal(book.animation,'book-3d');assert.equal(book.content.image,'https://cdn.test/book.webp');assert.equal(book.content.alt,'New book');
+const cardFromAsset=createArtifactFromAsset({id:'card-asset',name:'Card Front.webp',category:'card',storage_path:'card.webp',thumbnail_path:null,mime_type:'image/webp',file_size:1,width:100,height:100,alt_text:'Card front',approved:true,source_path:null,created_at:''},undefined,'https://cdn.test/card.webp');
+assert.equal(cardFromAsset.type,'card');assert.equal(cardFromAsset.asset_id,'card-asset');assert.equal(cardFromAsset.content.front_asset_id,'card-asset');assert.equal(cardFromAsset.content.front_image,'https://cdn.test/card.webp');
 const music=createArtifactFromAsset({id:'music-asset',name:'High and Dry.webp',category:'music',storage_path:'music.webp',thumbnail_path:null,mime_type:'image/webp',file_size:1,width:100,height:100,alt_text:'Cover',approved:true,source_path:null,created_at:''},undefined,'https://cdn.test/music.webp');
 assert.equal(music.type,'music');assert.equal(music.animation,'lift');assert.equal(music.action,'play-music');assert.equal(music.config.lift,8);assert.equal(music.config.duration,500);assert.equal(music.content.trackId,'music-asset');assert.equal(music.content.audio,'');
-console.log(`PASS: ${localBoard.artifacts.length} seeded artifacts, all referenced files, 13 registry contracts, invalid URL/action/identity rejection, no reintroduced removed experiment.`);
+const card=newArtifact('card');card.content={front_asset_id:'front-asset',back_asset_id:'back-asset',front_image:'https://cdn.test/front.webp',back_image:'https://cdn.test/back.webp',front_alt:'Front face',back_alt:'Back face'};validateBoard({settings:localBoard.settings,artifacts:[card]});assert.equal(card.action,'flip-card');assert.equal(card.config.duration,680);const cardCopy={...structuredClone(card),id:'card-copy',key:'card-copy',x:24,y:24};assert.deepEqual(cardCopy.content,card.content);const incompleteCard=structuredClone(card);incompleteCard.content.back_asset_id='';assert.throws(()=>validateBoard({settings:localBoard.settings,artifacts:[incompleteCard]}));
+console.log(`PASS: ${localBoard.artifacts.length} seeded artifacts, all referenced files, 14 registry contracts, invalid URL/action/identity rejection, card front/back validation and duplicate persistence.`);

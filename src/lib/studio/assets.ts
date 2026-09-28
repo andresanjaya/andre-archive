@@ -1,6 +1,6 @@
 import type { AssetRecord } from '../archive/model';
 import { studioClient } from './client';
-export const assetCategories=['photography','book','sticker','pokemon','marvel','music','cinema','puzzle','decoration','other'];
+export const assetCategories=['photography','book','card','sticker','pokemon','marvel','music','cinema','puzzle','decoration','other'];
 export function publicAssetUrl(path:string){return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/archive-public/${path}`}
 export function isAudioAsset(asset:AssetRecord){return asset.mime_type==='audio/mpeg'}
 async function variant(bitmap:ImageBitmap, max:number){

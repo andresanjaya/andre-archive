@@ -17,7 +17,10 @@ export default function BoardEditor(){
  const artifact=board.artifacts.find(a=>a.id===selected);
  const [showAssets,setShowAssets]=useState(false);
  useEffect(()=>{let live=true;void Promise.all(assets.map(async a=>[a.id,await assetPreview(a,false)] as const)).then(pairs=>{if(live)setUrls(Object.fromEntries(pairs))}).catch(e=>setStatus(e.message));return()=>{live=false}},[assets,setStatus]); // URLs refreshed when assets change, not on drag.
- const displayBoard=useMemo(()=>({...board,artifacts:board.artifacts.map(a=>a.asset_id&&urls[a.asset_id]?{...a,content:{...a.content,image:urls[a.asset_id]}}:a)}),[board,urls]);
+ const displayBoard=useMemo(()=>({...board,artifacts:board.artifacts.map(a=>{
+  if(a.type==='card')return {...a,content:{...a.content,front_image:urls[a.content.front_asset_id]||a.content.front_image,back_image:urls[a.content.back_asset_id]||a.content.back_image}};
+  return a.asset_id&&urls[a.asset_id]?{...a,content:{...a.content,image:urls[a.asset_id]}}:a;
+ })}),[board,urls]);
  const update=(a:ArtifactRecord)=>setBoard({...latest.current,artifacts:latest.current.artifacts.map(item=>item.id===a.id?a:item)});
  const add=(a:ArtifactRecord)=>{checkpoint();setBoard({...board,artifacts:[...board.artifacts,a]});setSelected(a.id)};
  const duplicate=()=>{if(!artifact)return;add({...artifact,id:crypto.randomUUID(),key:crypto.randomUUID(),name:artifact.name+' copy',x:artifact.x+24,y:artifact.y+24})};
@@ -43,4 +46,4 @@ export default function BoardEditor(){
   <div className="studio-preview" hidden={!preview}><Preview snapshot={displayBoard} collections={studio.collections}/></div>
  </main>;
 }
-function estimatedHeight(a:ArtifactRecord){return a.width*(a.type==='identity'?1.23:a.type==='polaroid'?1.34:['book','cinema'].includes(a.type)?1.48:1)}
+function estimatedHeight(a:ArtifactRecord){return a.width*(a.type==='identity'?1.23:a.type==='polaroid'?1.34:a.type==='card'?2048/1292:['book','cinema'].includes(a.type)?1.48:1)}

@@ -69,6 +69,8 @@ If Studio shows `DELETE requires a WHERE clause` when saving, run `supabase/migr
 
 To import MP3 tracks, also run `supabase/migrations/202609280002_enable_audio_assets.sql` once. It allows `audio/mpeg` in the asset table and both Storage buckets, preserves private-to-public approval, and prevents publishing a board that references unapproved audio.
 
+To create and publish flip cards, run `supabase/migrations/202609280004_add_card_artifact.sql` once. It registers the `card` artifact validator and protects both front and back asset references. Without it, the Board editor can display a card but Supabase will reject Save Draft with `Unsupported artifact type`.
+
 ## 5. Local asset migration
 
 `docs/studio-asset-manifest.json` records the currently referenced local files, hashes, and uses. Existing `/archive/...` media remains a valid fallback, so introducing the CMS does not require a risky all-at-once upload.
