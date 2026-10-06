@@ -13,6 +13,7 @@
   "dependencies": {
     "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
     "@supabase/supabase-js": "^2.49.10",
+    "@vercel/analytics": "^2.0.1",
     "next": "^14.2.35",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
